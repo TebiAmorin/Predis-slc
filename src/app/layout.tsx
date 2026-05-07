@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Rajdhani, Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/header";
+import { Analytics } from "@vercel/analytics/react";
 
 const rajdhani = Rajdhani({
   subsets: ["latin"],
@@ -65,6 +66,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        <Analytics />
       </body>
     </html>
   );
