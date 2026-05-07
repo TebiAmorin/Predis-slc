@@ -67,80 +67,85 @@ export function MatchFilters({ matches, userPredictions, userId }: Props) {
       )}
 
       {/* Filters */}
-      <div className="space-y-3">
-        {/* Status pills */}
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+      <div className="space-y-5 bg-card/50 backdrop-blur-sm border border-border p-4 sm:p-6 rounded-xl">
+        {/* Status tabs (Primary Navigation) */}
+        <div className="flex flex-wrap gap-3 border-b border-border/50 pb-5">
           {[
-            { key: "all", label: "Todos", count: matches.length },
-            { key: "upcoming", label: "Abiertos", count: matches.filter(m => m.status === "upcoming").length },
-            { key: "live", label: "En vivo", count: matches.filter(m => m.status === "live").length },
-            { key: "completed", label: "Finalizados", count: matches.filter(m => m.status === "completed").length },
+            { key: "all", label: "TODOS", count: matches.length },
+            { key: "upcoming", label: "ABIERTOS", count: matches.filter(m => m.status === "upcoming").length },
+            { key: "live", label: "EN VIVO", count: matches.filter(m => m.status === "live").length },
+            { key: "completed", label: "FINALIZADOS", count: matches.filter(m => m.status === "completed").length },
           ].map(f => (
             <button
               key={f.key}
               onClick={() => setStatusFilter(f.key)}
-              className={`shrink-0 text-[11px] font-heading font-bold px-3 py-1.5 rounded-lg tracking-wider uppercase transition cursor-pointer flex items-center gap-1.5 ${
+              className={`btn-skew shrink-0 px-6 py-2.5 transition-all cursor-pointer border ${
                 statusFilter === f.key
-                  ? "bg-r6-red text-white"
-                  : "bg-card border border-border text-muted hover:text-text"
+                  ? "bg-accent border-accent text-bg shadow-lg shadow-accent/20"
+                  : "bg-bg-alt border-border text-text-secondary hover:text-text hover:border-border-light hover:bg-card-hover"
               }`}
             >
-              {f.label}
-              <span className={`text-[9px] px-1.5 py-0.5 rounded-full ${
-                statusFilter === f.key ? "bg-white/20" : "bg-border"
-              }`}>
-                {f.count}
-              </span>
+              <div className="flex items-center gap-2 font-heading font-black tracking-widest text-sm">
+                <span>{f.label}</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-sm ${
+                  statusFilter === f.key ? "bg-bg-alt/20 text-bg" : "bg-card text-muted"
+                }`}>
+                  {f.count}
+                </span>
+              </div>
             </button>
           ))}
         </div>
 
-        {/* Stage + Day filters */}
-        <div className="flex flex-wrap gap-1.5">
-          <button
-            onClick={() => setStageFilter("all")}
-            className={`text-[10px] font-heading font-bold px-2.5 py-1 rounded-full tracking-wider uppercase transition cursor-pointer ${
-              stageFilter === "all" ? "bg-accent text-bg" : "bg-card border border-border text-muted hover:text-text"
-            }`}
-          >
-            Todas las fases
-          </button>
-          {stages.map(s => (
+        <div className="flex flex-col sm:flex-row gap-4 justify-between">
+          {/* Stage filters */}
+          <div className="flex flex-wrap gap-2">
             <button
-              key={s}
-              onClick={() => setStageFilter(s)}
-              className={`text-[10px] font-heading font-bold px-2.5 py-1 rounded-full tracking-wider uppercase transition cursor-pointer ${
-                stageFilter === s ? "bg-accent text-bg" : "bg-card border border-border text-muted hover:text-text"
+              onClick={() => setStageFilter("all")}
+              className={`text-xs font-heading font-bold px-4 py-2 rounded-lg tracking-wider transition cursor-pointer ${
+                stageFilter === "all" ? "bg-card-hover border border-border-light text-text" : "bg-transparent border border-transparent text-text-secondary hover:bg-card/50"
               }`}
             >
-              {s.replace("Phase 1 - ", "P1: ").replace("Phase 2 - ", "P2: ").replace("Playoffs - ", "")}
+              TODAS LAS FASES
             </button>
-          ))}
-        </div>
-
-        {days.length > 1 && (
-          <div className="flex gap-1.5 overflow-x-auto pb-1">
-            <button
-              onClick={() => setDayFilter("all")}
-              className={`shrink-0 text-[10px] font-heading font-bold px-2.5 py-1 rounded-full tracking-wider transition cursor-pointer ${
-                dayFilter === "all" ? "bg-border-light text-text" : "text-muted hover:text-text"
-              }`}
-            >
-              Todos los días
-            </button>
-            {days.map(([key, label]) => (
+            {stages.map(s => (
               <button
-                key={key}
-                onClick={() => setDayFilter(key)}
-                className={`shrink-0 text-[10px] font-heading font-bold px-2.5 py-1 rounded-full tracking-wider transition cursor-pointer ${
-                  dayFilter === key ? "bg-border-light text-text" : "text-muted hover:text-text"
+                key={s}
+                onClick={() => setStageFilter(s)}
+                className={`text-xs font-heading font-bold px-4 py-2 rounded-lg tracking-wider transition cursor-pointer ${
+                  stageFilter === s ? "bg-card-hover border border-border-light text-text" : "bg-transparent border border-transparent text-text-secondary hover:bg-card/50"
                 }`}
               >
-                {label}
+                {s.replace("Phase 1 - ", "P1: ").replace("Phase 2 - ", "P2: ").replace("Playoffs - ", "").toUpperCase()}
               </button>
             ))}
           </div>
-        )}
+
+          {/* Day filters */}
+          {days.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto">
+              <button
+                onClick={() => setDayFilter("all")}
+                className={`shrink-0 text-xs font-heading font-bold px-4 py-2 rounded-lg tracking-wider transition cursor-pointer ${
+                  dayFilter === "all" ? "bg-card-hover border border-border-light text-text" : "bg-transparent border border-transparent text-text-secondary hover:bg-card/50"
+                }`}
+              >
+                TODOS LOS DÍAS
+              </button>
+              {days.map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setDayFilter(key)}
+                  className={`shrink-0 text-xs font-heading font-bold px-4 py-2 rounded-lg tracking-wider transition cursor-pointer ${
+                    dayFilter === key ? "bg-card-hover border border-border-light text-text" : "bg-transparent border border-transparent text-text-secondary hover:bg-card/50"
+                  }`}
+                >
+                  {label.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Results */}

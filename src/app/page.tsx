@@ -50,31 +50,43 @@ export default async function Home() {
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-r6-red/20 via-card to-accent/10 border border-border p-6 sm:p-10 text-center">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(46,232,199,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(204,41,54,0.08),transparent_50%)]" />
-        <div className="relative">
-          <p className="text-[10px] text-text-secondary tracking-[0.3em] uppercase mb-3">8 — 17 Mayo 2026</p>
-          <h1 className="font-heading font-bold text-3xl sm:text-5xl tracking-wider leading-tight">
+      <section className="relative overflow-hidden slc-cyber-clip bg-bg-alt border border-border p-8 sm:p-14 text-center">
+        <div className="absolute inset-0 bg-cyber-dots opacity-30" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-r6-red/10 blur-[100px] pointer-events-none" />
+        
+        {/* Decorative corner pieces */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-accent/40" />
+        <div className="absolute bottom-0 right-16 w-8 h-8 border-b-2 border-r-2 border-r6-red/40" />
+
+        <div className="relative z-10">
+          <div className="inline-block bg-card px-3 py-1 mb-4 border border-border/50 shadow-[0_0_15px_rgba(209,242,0,0.1)]">
+            <p className="text-[10px] text-accent font-heading font-bold tracking-[0.3em] uppercase">
+              <span className="text-r6-red mr-2">■</span>
+              8 — 17 Mayo 2026
+            </p>
+          </div>
+          
+          <h1 className="font-heading font-black text-4xl sm:text-7xl tracking-tighter leading-none text-transparent bg-clip-text bg-gradient-to-br from-text to-text-secondary">
             SALT LAKE CITY
           </h1>
-          <p className="font-heading font-bold text-r6-red text-lg sm:text-2xl tracking-widest mt-1">
-            ▲6 MAJOR
+          <p className="font-heading font-black text-accent text-xl sm:text-3xl tracking-[0.2em] mt-2 mb-6">
+            BLAST <span className="text-r6-red">R6</span> MAJOR
           </p>
-          <p className="text-text-secondary mt-4 max-w-md mx-auto text-sm leading-relaxed">
+          <p className="text-text-secondary max-w-md mx-auto text-sm sm:text-base leading-relaxed bg-bg-alt/50 backdrop-blur-sm p-2 rounded">
             Predice los ganadores de cada partido y compite por el primer puesto
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
             <Link
               href="/predicciones"
-              className="bg-r6-red hover:bg-r6-red/80 text-white font-heading font-bold text-sm px-6 py-2.5 rounded-xl tracking-wider uppercase transition w-full sm:w-auto text-center"
+              className="slc-cyber-clip bg-accent hover:bg-accent-hover text-bg font-heading font-black text-sm px-8 py-3 tracking-widest uppercase transition w-full sm:w-auto text-center shadow-[0_0_20px_rgba(209,242,0,0.2)] hover:shadow-[0_0_30px_rgba(209,242,0,0.4)]"
             >
               Hacer predicciones
             </Link>
             <Link
               href="/live"
-              className="bg-card border border-border hover:border-border-light text-text font-heading font-bold text-sm px-6 py-2.5 rounded-xl tracking-wider uppercase transition w-full sm:w-auto text-center"
+              className="slc-cyber-clip-reverse bg-card border border-border hover:border-r6-red text-text font-heading font-bold text-sm px-8 py-3 tracking-widest uppercase transition w-full sm:w-auto text-center"
             >
               Ver Stream
             </Link>
@@ -83,20 +95,21 @@ export default async function Home() {
       </section>
 
       {/* Prize */}
-      <section className="bg-card border border-border rounded-2xl p-4 sm:p-5 flex items-center gap-4">
-        <div className="w-11 h-11 bg-gradient-to-br from-yellow-400/20 to-yellow-600/20 border border-yellow-500/20 rounded-xl flex items-center justify-center text-xl shrink-0">
-          🏆
+      <section className="bg-card slc-cyber-clip border-l-4 border-l-accent p-4 sm:p-5 flex items-center gap-4 relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-32 h-full bg-accent/5 -skew-x-12 translate-x-8" />
+        <div className="w-12 h-12 bg-accent/10 border border-accent/20 rounded flex items-center justify-center text-2xl shrink-0 text-accent">
+          <span className="drop-shadow-[0_0_8px_rgba(209,242,0,0.5)]">🏆</span>
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-heading font-bold text-sm tracking-wider">Premio al ganador</h3>
-          <p className="text-text-secondary text-xs mt-0.5">
+        <div className="flex-1 min-w-0 z-10">
+          <h3 className="font-heading font-bold text-sm tracking-widest text-accent uppercase">Premio al ganador</h3>
+          <p className="text-text-secondary text-xs mt-1">
             El #1 del leaderboard se lleva un regalo exclusivo del Major Salt Lake City
           </p>
         </div>
         {!session && (
           <Link
             href="/login"
-            className="bg-r6-red hover:bg-r6-red/80 text-white font-heading font-bold text-[11px] px-4 py-2 rounded-lg tracking-wider uppercase transition shrink-0 hidden sm:block"
+            className="slc-cyber-clip bg-r6-red hover:bg-r6-red/80 text-white font-heading font-bold text-[11px] px-5 py-2.5 tracking-widest uppercase transition shrink-0 hidden sm:block z-10"
           >
             Participar
           </Link>
@@ -129,7 +142,7 @@ export default async function Home() {
       </section>
 
       {/* Quick links - mobile friendly */}
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { href: "/live", icon: "📺", label: "Live Stream", desc: "Ver en directo" },
           { href: "/predicciones", icon: "🎯", label: "Predicciones", desc: "Predice ganadores" },
@@ -139,11 +152,13 @@ export default async function Home() {
           <Link
             key={link.href}
             href={link.href}
-            className="bg-card border border-border rounded-xl p-4 hover:border-border-light hover:shadow-lg hover:shadow-black/10 transition-all text-center group"
+            className="bg-card slc-cyber-clip border border-border p-5 hover:border-accent/50 hover:bg-card-hover transition-all text-center group relative overflow-hidden"
           >
-            <p className="text-2xl mb-2">{link.icon}</p>
-            <p className="font-heading font-bold text-xs tracking-wider group-hover:text-accent transition">{link.label}</p>
-            <p className="text-[10px] text-muted mt-0.5">{link.desc}</p>
+            <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors" />
+            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-border group-hover:border-accent transition-colors m-2" />
+            <p className="text-2xl mb-3 relative z-10 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-transform">{link.icon}</p>
+            <p className="font-heading font-bold text-xs tracking-widest text-text group-hover:text-accent transition relative z-10 uppercase">{link.label}</p>
+            <p className="text-[10px] text-text-secondary mt-1 relative z-10">{link.desc}</p>
           </Link>
         ))}
       </section>
@@ -152,31 +167,34 @@ export default async function Home() {
       {leaderboard && leaderboard.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading font-bold text-xl tracking-wider">Top Predictores</h2>
-            <Link href="/leaderboard" className="text-xs font-heading font-semibold text-accent hover:text-accent-hover transition tracking-wider uppercase">
-              Ver ranking →
+            <h2 className="font-heading font-black text-xl tracking-widest uppercase flex items-center gap-2">
+              <span className="w-2 h-6 bg-accent block skew-x-[-15deg]"></span>
+              Top Predictores
+            </h2>
+            <Link href="/leaderboard" className="text-xs font-heading font-bold text-text-secondary hover:text-accent transition tracking-widest uppercase flex items-center gap-1">
+              Ver ranking <span className="text-accent">→</span>
             </Link>
           </div>
-          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="bg-card border border-border slc-cyber-clip-reverse">
             {leaderboard.map((entry, i) => (
-              <div key={entry.id} className="flex items-center gap-3 px-4 py-3 border-b border-border/40 last:border-0 hover:bg-card-hover transition">
-                <span className={`font-heading font-bold text-lg w-6 text-center ${
-                  i === 0 ? "text-yellow-400" : i === 1 ? "text-gray-300" : i === 2 ? "text-amber-600" : "text-muted"
+              <div key={entry.id} className="flex items-center gap-4 px-5 py-4 border-b border-border/40 last:border-0 hover:bg-card-hover transition">
+                <span className={`font-heading font-black text-xl w-6 text-center ${
+                  i === 0 ? "text-accent drop-shadow-[0_0_8px_rgba(209,242,0,0.5)]" : i === 1 ? "text-gray-300" : i === 2 ? "text-amber-600" : "text-muted"
                 }`}>
                   {i + 1}
                 </span>
                 {entry.avatar_url ? (
-                  <img src={entry.avatar_url} alt="" className="w-8 h-8 rounded-full" />
+                  <img src={entry.avatar_url} alt="" className="w-9 h-9 slc-cyber-clip" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-border" />
+                  <div className="w-9 h-9 slc-cyber-clip bg-border" />
                 )}
                 <div className="flex-1 min-w-0">
                   <span className="font-medium text-sm truncate block">{entry.display_name || entry.username}</span>
-                  {entry.username && <span className="text-[10px] text-muted">@{entry.username}</span>}
+                  {entry.username && <span className="text-[10px] text-muted font-heading tracking-widest">@{entry.username}</span>}
                 </div>
-                <div className="text-right">
-                  <span className="font-heading font-bold text-success text-lg">{entry.correct_predictions}</span>
-                  <span className="text-[10px] text-muted ml-0.5">/{entry.total_predictions}</span>
+                <div className="text-right flex flex-col items-end">
+                  <span className="font-heading font-black text-success text-xl leading-none">{entry.correct_predictions}</span>
+                  <span className="text-[10px] text-muted mt-1 uppercase tracking-widest border-t border-border/50 pt-0.5">/{entry.total_predictions} TOTAL</span>
                 </div>
               </div>
             ))}

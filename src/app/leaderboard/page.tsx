@@ -13,14 +13,15 @@ export default async function LeaderboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-heading font-bold text-2xl tracking-wider">Leaderboard</h1>
-          <p className="text-text-secondary text-sm mt-0.5">Ranking de aciertos en predicciones</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-bg-alt/50 p-6 slc-cyber-clip border-l-4 border-l-r6-red relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-32 h-full bg-r6-red/5 -skew-x-12 translate-x-8" />
+        <div className="relative z-10">
+          <h1 className="font-heading font-black text-3xl tracking-widest text-text drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">LEADERBOARD</h1>
+          <p className="text-text-secondary font-bold font-heading tracking-widest text-xs mt-1 uppercase">Ranking de aciertos en predicciones</p>
         </div>
-        <div className="bg-gradient-to-r from-r6-red/10 to-accent-dim border border-border rounded-lg px-3 py-2 text-center">
-          <p className="text-[10px] text-muted tracking-wider uppercase">Premio #1</p>
-          <p className="text-xs font-heading font-bold">🏆 Regalo exclusivo Major SLC</p>
+        <div className="bg-card/80 border border-border slc-cyber-clip px-4 py-3 text-center relative z-10 shadow-[0_0_10px_rgba(209,242,0,0.1)]">
+          <p className="text-[10px] text-accent tracking-widest uppercase font-black">PREMIO #1</p>
+          <p className="text-xs font-heading font-bold mt-0.5 text-text">🏆 Regalo exclusivo Major SLC</p>
         </div>
       </div>
 

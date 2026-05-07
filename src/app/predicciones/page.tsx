@@ -28,31 +28,32 @@ export default async function PrediccionesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="font-heading font-bold text-2xl tracking-wider">Predicciones</h1>
-          <p className="text-text-secondary text-sm mt-0.5">Toca un equipo para predecir el ganador</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-bg-alt/50 p-6 slc-cyber-clip border-l-4 border-l-accent relative overflow-hidden">
+        <div className="absolute right-0 top-0 w-32 h-full bg-accent/5 -skew-x-12 translate-x-8" />
+        <div className="relative z-10">
+          <h1 className="font-heading font-black text-3xl tracking-widest text-text drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">PREDICCIONES</h1>
+          <p className="text-accent font-bold font-heading tracking-widest text-xs mt-1 uppercase">Toca un equipo para predecir el ganador</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 relative z-10">
           {session && (
             <a
               href={`https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 bg-card border border-border hover:border-accent/30 text-text text-[11px] font-heading font-bold px-3 py-2 rounded-lg tracking-wider uppercase transition"
+              className="flex items-center gap-2 bg-bg border border-border hover:border-accent hover:text-accent text-text text-[11px] font-heading font-black px-4 py-2 slc-cyber-clip tracking-widest uppercase transition"
             >
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
-              Compartir
+              COMPARTIR
             </a>
           )}
           {!session && (
             <Link
               href="/login"
-              className="bg-r6-red hover:bg-r6-red/80 text-white text-[11px] font-heading font-bold px-4 py-2 rounded-lg tracking-wider uppercase transition"
+              className="bg-accent hover:bg-accent-hover text-bg text-[11px] font-heading font-black px-5 py-2 slc-cyber-clip tracking-widest uppercase transition shadow-[0_0_10px_rgba(209,242,0,0.3)]"
             >
-              Login para predecir
+              LOGIN PARA PREDECIR
             </Link>
           )}
         </div>

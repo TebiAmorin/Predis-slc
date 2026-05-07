@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
+import { Rajdhani, Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/header";
+
+const rajdhani = Rajdhani({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-heading",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+});
 
 export const metadata: Metadata = {
   title: "BLAST R6 Major SLC 2026 - Predicciones",
@@ -19,7 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="min-h-screen flex flex-col">
+      <body className={`${inter.variable} ${rajdhani.variable} min-h-screen flex flex-col font-body bg-bg text-text`}>
         <Header />
         <main className="flex-1 max-w-6xl mx-auto px-4 py-6 w-full">
           {children}

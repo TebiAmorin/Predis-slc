@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Match, Team } from "@/lib/types";
+import Image from "next/image";
 
 type MatchCardProps = {
   match: Match & { team_a: Team; team_b: Team };
@@ -12,10 +13,10 @@ type MatchCardProps = {
 
 function TeamLogo({ team }: { team: Team }) {
   if (team.logo_url) {
-    return <img src={team.logo_url} alt={team.name} className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-lg" />;
+    return <Image src={team.logo_url} alt={team.name} width={56} height={56} className="w-12 h-12 sm:w-14 sm:h-14 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]" />;
   }
   return (
-    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-border-light flex items-center justify-center font-heading font-bold text-base text-muted">
+    <div className="w-12 h-12 sm:w-14 sm:h-14 bg-bg-alt border border-border flex items-center justify-center font-heading font-black text-lg text-text-secondary slc-cyber-clip">
       {team.short_name}
     </div>
   );
@@ -69,59 +70,62 @@ export function MatchCard({ match, userPrediction, userId }: MatchCardProps) {
   }
 
   return (
-    <div className={`bg-card rounded-2xl overflow-hidden border transition-all duration-200 ${
-      isCompleted ? "border-border/50" : isLive ? "border-r6-red/40 shadow-[0_0_20px_rgba(204,41,54,0.1)]" : "border-border hover:border-border-light hover:shadow-lg hover:shadow-black/20"
+    <div className={`bg-card slc-cyber-clip relative group transition-all duration-300 ${
+      isCompleted ? "border border-border opacity-90" : isLive ? "border-2 border-r6-red" : "border border-border hover:border-text-secondary"
     }`}>
+      {/* Tech background pattern */}
+      <div className="absolute inset-0 bg-cyber-dots opacity-10 pointer-events-none" />
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bg-alt/60">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-5 py-3 bg-bg-alt/80 border-b border-border/50 relative">
+        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-border via-border-light to-border" />
+        <div className="flex items-center gap-3">
           {isLive && (
-            <span className="flex items-center gap-1 text-[10px] bg-r6-red text-white px-2 py-0.5 rounded-full font-bold">
-              <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+            <span className="flex items-center gap-1.5 text-[10px] bg-r6-red/20 border border-r6-red text-r6-red px-2 py-0.5 font-black tracking-widest uppercase">
+              <span className="w-1.5 h-1.5 bg-r6-red rounded-full animate-pulse shadow-[0_0_5px_rgba(255,0,60,0.8)]" />
               EN VIVO
             </span>
           )}
           {isCompleted && (
-            <span className="text-[10px] bg-border text-text-secondary px-2 py-0.5 rounded-full font-heading font-bold">
+            <span className="text-[10px] bg-bg border border-border text-text-secondary px-2 py-0.5 font-heading font-black tracking-widest uppercase">
               FINALIZADO
             </span>
           )}
-          <span className="text-[10px] text-muted font-heading tracking-wider">{match.stage}</span>
+          <span className="text-[10px] text-text-secondary font-heading font-bold tracking-widest uppercase">{match.stage}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-heading font-bold bg-card text-text-secondary px-2 py-0.5 rounded-full border border-border">
+          <span className="text-[10px] font-heading font-black bg-bg text-text-secondary px-2 py-0.5 border border-border tracking-widest uppercase">
             BO{match.best_of}
           </span>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="px-4 py-4">
+      <div className="px-5 py-5 relative z-10">
         {/* Date */}
-        <p className="text-center text-[10px] text-muted mb-3">{dayStr} · {timeStr}</p>
+        <p className="text-center text-[11px] text-text-secondary mb-4 font-heading tracking-widest font-bold uppercase">{dayStr} <span className="mx-2 text-border-light">/</span> {timeStr}</p>
 
         {/* Teams row */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Team A */}
           <button
             onClick={() => handlePredict(match.team_a_id)}
             disabled={!userId || !!isLocked || predicting}
-            className={`flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 cursor-pointer ${teamBg(isPickedA, winnerA)} ${(!userId || isLocked) ? "cursor-default" : ""}`}
+            className={`flex-1 flex flex-col items-center gap-3 p-4 slc-cyber-clip border transition-all duration-300 cursor-pointer ${teamBg(isPickedA, winnerA)} ${(!userId || isLocked) ? "cursor-default" : "hover:-translate-y-1 hover:border-r6-red"}`}
           >
             <TeamLogo team={match.team_a} />
-            <div className="text-center">
-              <p className={`font-heading font-bold text-sm tracking-wider ${winnerA ? "text-success" : isPickedA && !isCompleted ? "text-accent" : ""}`}>
+            <div className="text-center w-full">
+              <p className={`font-heading font-black text-sm sm:text-base tracking-widest uppercase truncate w-full ${winnerA ? "text-success" : isPickedA && !isCompleted ? "text-r6-red" : "text-text"}`}>
                 {match.team_a.short_name}
               </p>
-              <p className="text-[9px] text-muted leading-tight mt-0.5 hidden sm:block">{match.team_a.name}</p>
+              <p className="text-[9px] text-text-secondary leading-tight mt-1 hidden sm:block truncate w-full tracking-wider uppercase font-medium">{match.team_a.name}</p>
             </div>
             {isCompleted && match.score_a !== null && (
-              <span className={`text-xl font-heading font-bold ${winnerA ? "text-success" : "text-muted"}`}>
+              <span className={`text-2xl font-heading font-black leading-none mt-1 ${winnerA ? "text-success" : "text-text-secondary"}`}>
                 {match.score_a}
               </span>
             )}
             {isPickedA && !isCompleted && (
-              <span className="text-[9px] bg-accent text-bg px-2 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] bg-r6-red text-white px-3 py-1 font-black tracking-widest uppercase mt-2">
                 TU PICK
               </span>
             )}
@@ -129,7 +133,7 @@ export function MatchCard({ match, userPrediction, userId }: MatchCardProps) {
 
           {/* VS divider */}
           <div className="flex flex-col items-center gap-1 px-1">
-            <span className={`font-heading font-bold text-lg ${isLive ? "text-r6-red" : "text-muted"}`}>
+            <span className={`font-heading font-black text-xl tracking-widest ${isLive ? "text-r6-red drop-shadow-[0_0_5px_rgba(255,0,60,0.5)]" : "text-border-light"}`}>
               VS
             </span>
           </div>
@@ -138,22 +142,22 @@ export function MatchCard({ match, userPrediction, userId }: MatchCardProps) {
           <button
             onClick={() => handlePredict(match.team_b_id)}
             disabled={!userId || !!isLocked || predicting}
-            className={`flex-1 flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all duration-200 cursor-pointer ${teamBg(isPickedB, winnerB)} ${(!userId || isLocked) ? "cursor-default" : ""}`}
+            className={`flex-1 flex flex-col items-center gap-3 p-4 slc-cyber-clip border transition-all duration-300 cursor-pointer ${teamBg(isPickedB, winnerB)} ${(!userId || isLocked) ? "cursor-default" : "hover:-translate-y-1 hover:border-r6-red"}`}
           >
             <TeamLogo team={match.team_b} />
-            <div className="text-center">
-              <p className={`font-heading font-bold text-sm tracking-wider ${winnerB ? "text-success" : isPickedB && !isCompleted ? "text-accent" : ""}`}>
+            <div className="text-center w-full">
+              <p className={`font-heading font-black text-sm sm:text-base tracking-widest uppercase truncate w-full ${winnerB ? "text-success" : isPickedB && !isCompleted ? "text-r6-red" : "text-text"}`}>
                 {match.team_b.short_name}
               </p>
-              <p className="text-[9px] text-muted leading-tight mt-0.5 hidden sm:block">{match.team_b.name}</p>
+              <p className="text-[9px] text-text-secondary leading-tight mt-1 hidden sm:block truncate w-full tracking-wider uppercase font-medium">{match.team_b.name}</p>
             </div>
             {isCompleted && match.score_b !== null && (
-              <span className={`text-xl font-heading font-bold ${winnerB ? "text-success" : "text-muted"}`}>
+              <span className={`text-2xl font-heading font-black leading-none mt-1 ${winnerB ? "text-success" : "text-text-secondary"}`}>
                 {match.score_b}
               </span>
             )}
             {isPickedB && !isCompleted && (
-              <span className="text-[9px] bg-accent text-bg px-2 py-0.5 rounded-full font-bold">
+              <span className="text-[10px] bg-r6-red text-white px-3 py-1 font-black tracking-widest uppercase mt-2">
                 TU PICK
               </span>
             )}
@@ -163,25 +167,25 @@ export function MatchCard({ match, userPrediction, userId }: MatchCardProps) {
 
       {/* Bottom status */}
       {!userId && !isLocked && (
-        <div className="bg-bg-alt/40 px-4 py-2.5 text-center border-t border-border/50">
-          <p className="text-[11px] text-muted">
-            <a href="/login" className="text-accent hover:text-accent-hover font-semibold">Inicia sesión</a> para predecir
+        <div className="bg-bg-alt/80 px-5 py-3 text-center border-t border-border relative z-10">
+          <p className="text-[11px] text-text-secondary font-heading tracking-widest uppercase">
+            <a href="/login" className="text-accent hover:text-accent-hover font-black underline underline-offset-4 decoration-accent/30 mr-1">INICIA SESIÓN</a> PARA PREDECIR
           </p>
         </div>
       )}
       {userId && !isLocked && !currentPrediction && (
-        <div className="bg-accent/5 px-4 py-2.5 text-center border-t border-accent/10">
-          <p className="text-[11px] text-accent font-medium">↑ Toca un equipo para predecir el ganador</p>
+        <div className="bg-accent/10 px-5 py-3 text-center border-t border-accent/20 relative z-10">
+          <p className="text-[11px] text-accent font-heading font-black tracking-widest uppercase animate-pulse">↑ SELECCIONA UN EQUIPO PARA PREDECIR ↑</p>
         </div>
       )}
       {correctPick && (
-        <div className="bg-success/10 px-4 py-2.5 text-center border-t border-success/20">
-          <p className="text-[11px] font-bold text-success">✓ ¡Acertaste!</p>
+        <div className="bg-success/10 px-5 py-3 text-center border-t border-success/30 relative z-10">
+          <p className="text-[11px] font-heading font-black tracking-widest uppercase text-success drop-shadow-[0_0_5px_rgba(0,255,136,0.5)]">✓ ¡ACERTASTE!</p>
         </div>
       )}
       {wrongPick && (
-        <div className="bg-r6-red/10 px-4 py-2.5 text-center border-t border-r6-red/20">
-          <p className="text-[11px] font-bold text-r6-red">✗ No acertaste</p>
+        <div className="bg-r6-red/10 px-5 py-3 text-center border-t border-r6-red/30 relative z-10">
+          <p className="text-[11px] font-heading font-black tracking-widest uppercase text-r6-red drop-shadow-[0_0_5px_rgba(255,0,60,0.5)]">✗ FALLASTE LA PREDICCIÓN</p>
         </div>
       )}
     </div>
