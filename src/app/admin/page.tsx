@@ -106,8 +106,8 @@ export default function AdminPage() {
   if (loading) return <div className="text-center py-16 text-muted">Cargando...</div>;
   if (!isAdmin) return <div className="text-center py-16 text-muted">Acceso denegado</div>;
 
-  const inp = "w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:ring-1 focus:ring-accent";
-  const btn = "bg-accent hover:bg-accent-hover text-bg font-heading font-bold text-xs px-4 py-2 rounded-lg tracking-wider uppercase transition cursor-pointer disabled:opacity-50";
+  const inp = "w-full bg-bg border border-border px-4 py-2.5 text-sm text-text focus:outline-none focus:border-accent transition slc-cyber-clip";
+  const btn = "bg-accent hover:bg-accent-hover text-bg font-heading font-black tracking-widest text-xs px-6 py-3 uppercase transition cursor-pointer disabled:opacity-50 btn-skew";
 
   const STAGES = [
     "Phase 1 - Upper Bracket",
@@ -132,21 +132,25 @@ export default function AdminPage() {
       <h1 className="font-heading font-bold text-2xl tracking-wider">Panel Admin</h1>
 
       {/* Tabs */}
-      <div className="flex gap-1.5 bg-bg-alt p-1 rounded-lg w-fit">
+      <div className="flex flex-wrap gap-3 border-b border-border/50 pb-4">
         {([["matches", "Partidos"], ["results", "Resultados"], ["teams", "Equipos"]] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`font-heading font-bold text-xs px-4 py-1.5 rounded tracking-wider uppercase transition cursor-pointer ${
-              tab === key ? "bg-accent text-bg" : "text-muted hover:text-text"
+            className={`btn-skew shrink-0 px-6 py-2.5 transition-all cursor-pointer border ${
+              tab === key
+                ? "bg-accent border-accent text-bg shadow-lg shadow-accent/20"
+                : "bg-bg-alt border-border text-text-secondary hover:text-text hover:border-border-light hover:bg-card-hover"
             }`}
           >
-            {label}
-            {key === "results" && pendingMatches.length > 0 && (
-              <span className="ml-1.5 bg-r6-red text-white text-[9px] px-1.5 py-0.5 rounded-full">
-                {pendingMatches.length}
-              </span>
-            )}
+            <div className="flex items-center gap-2 font-heading font-black tracking-widest text-sm">
+              <span>{label}</span>
+              {key === "results" && pendingMatches.length > 0 && (
+                <span className="bg-r6-red text-white text-[9px] px-1.5 py-0.5 rounded-full">
+                  {pendingMatches.length}
+                </span>
+              )}
+            </div>
           </button>
         ))}
       </div>
@@ -154,8 +158,8 @@ export default function AdminPage() {
       {/* ===== MATCHES TAB ===== */}
       {tab === "matches" && (
         <div className="space-y-6">
-          <form onSubmit={addMatch} className="bg-card border border-border rounded-xl p-5 space-y-4">
-            <h3 className="font-heading font-bold tracking-wider text-sm">Crear Partido</h3>
+          <form onSubmit={addMatch} className="bg-card border border-border slc-cyber-clip p-6 space-y-5">
+            <h3 className="font-heading font-black tracking-widest text-lg text-text">CREAR PARTIDO</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {/* Team A */}
               <div>
@@ -182,14 +186,14 @@ export default function AdminPage() {
               </div>
               {/* BO */}
               <div>
-                <label className="text-[10px] text-muted tracking-wider uppercase block mb-1">Formato</label>
+                <label className="text-[10px] text-text-secondary tracking-widest uppercase block mb-1.5 font-bold">Formato</label>
                 <div className="flex gap-2">
                   {[1, 3, 5].map(n => (
                     <button
                       key={n} type="button"
                       onClick={() => setMatchBo(n)}
-                      className={`flex-1 font-heading font-bold text-xs py-2 rounded-lg transition cursor-pointer ${
-                        matchBo === n ? "bg-accent text-bg" : "bg-bg border border-border text-muted"
+                      className={`flex-1 font-heading font-black text-xs py-2 slc-cyber-clip transition cursor-pointer ${
+                        matchBo === n ? "bg-accent text-bg" : "bg-bg-alt border border-border text-text-secondary hover:text-text"
                       }`}
                     >
                       BO{n}
@@ -211,12 +215,12 @@ export default function AdminPage() {
           </form>
 
           {/* Match list */}
-          <div className="space-y-2">
-            <h3 className="font-heading font-bold tracking-wider text-sm text-text-secondary">
-              Partidos ({matches.length})
+          <div className="space-y-3">
+            <h3 className="font-heading font-black tracking-widest text-lg text-text-secondary">
+              PARTIDOS ({matches.length})
             </h3>
             {matches.map(match => (
-              <div key={match.id} className="bg-card border border-border rounded-xl p-3 flex items-center gap-3">
+              <div key={match.id} className="bg-card border border-border slc-cyber-clip p-4 flex items-center gap-4 hover:bg-card-hover transition">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-heading font-bold text-sm">
@@ -266,13 +270,13 @@ export default function AdminPage() {
       {/* ===== RESULTS TAB ===== */}
       {tab === "results" && (
         <div className="space-y-4">
-          <p className="text-text-secondary text-xs">
+          <p className="text-text-secondary text-sm font-medium">
             Marca el ganador y resultado de cada partido. Las predicciones se resuelven automáticamente.
           </p>
 
           {pendingMatches.length === 0 && (
-            <div className="text-center py-8 bg-card border border-border rounded-xl">
-              <p className="text-muted font-heading tracking-wider">Todos los partidos tienen resultado</p>
+            <div className="text-center py-12 bg-card border border-border slc-cyber-clip">
+              <p className="text-text-secondary font-heading tracking-widest uppercase font-bold text-sm">Todos los partidos tienen resultado</p>
             </div>
           )}
 
@@ -282,16 +286,19 @@ export default function AdminPage() {
 
           {completedMatches.length > 0 && (
             <>
-              <h3 className="font-heading font-bold tracking-wider text-sm text-text-secondary pt-4">
-                Completados ({completedMatches.length})
+              <h3 className="font-heading font-black tracking-widest text-lg text-text-secondary pt-6">
+                COMPLETADOS ({completedMatches.length})
               </h3>
               {completedMatches.map(match => (
-                <div key={match.id} className="bg-card border border-success/20 rounded-xl p-3 flex items-center gap-3 opacity-60">
-                  <span className="text-success text-sm">✓</span>
-                  <span className="font-heading font-bold text-sm flex-1">
-                    {match.team_a.short_name} {match.score_a} - {match.score_b} {match.team_b.short_name}
+                <div key={match.id} className="bg-card border border-success/30 slc-cyber-clip p-4 flex items-center gap-4 opacity-70 relative overflow-hidden">
+                  <div className="absolute left-0 top-0 w-1 h-full bg-success" />
+                  <span className="text-success text-xl font-black">✓</span>
+                  <span className="font-heading font-black tracking-widest text-base flex-1 uppercase">
+                    {match.team_a.short_name} <span className="text-success mx-2">{match.score_a} - {match.score_b}</span> {match.team_b.short_name}
                   </span>
-                  <span className="text-[10px] text-muted">{match.stage}</span>
+                  <span className="text-[10px] bg-bg border border-border text-text-secondary px-2 py-0.5 font-heading font-bold tracking-widest uppercase">
+                    {match.stage}
+                  </span>
                 </div>
               ))}
             </>
@@ -302,9 +309,9 @@ export default function AdminPage() {
       {/* ===== TEAMS TAB ===== */}
       {tab === "teams" && (
         <div className="space-y-6">
-          <form onSubmit={addTeam} className="bg-card border border-border rounded-xl p-5 space-y-3">
-            <h3 className="font-heading font-bold tracking-wider text-sm">Añadir Equipo</h3>
-            <div className="grid grid-cols-2 gap-3">
+          <form onSubmit={addTeam} className="bg-card border border-border slc-cyber-clip p-6 space-y-4">
+            <h3 className="font-heading font-black tracking-widest text-lg text-text">AÑADIR EQUIPO</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <input className={inp} placeholder="Nombre completo" value={teamName} onChange={e => setTeamName(e.target.value)} required />
               <input className={inp} placeholder="Abreviatura (ej: W7M)" value={teamShort} onChange={e => setTeamShort(e.target.value)} required />
               <input className={inp} placeholder="URL Logo (opcional)" value={teamLogo} onChange={e => setTeamLogo(e.target.value)} />
@@ -316,13 +323,13 @@ export default function AdminPage() {
             <button type="submit" className={btn} disabled={saving}>Añadir</button>
           </form>
 
-          <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <div className="bg-card border border-border slc-cyber-clip overflow-hidden">
             {teams.map(team => (
-              <div key={team.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-border/50 last:border-0">
+              <div key={team.id} className="flex items-center gap-4 px-5 py-3 border-b border-border/50 last:border-0 hover:bg-card-hover transition">
                 {team.logo_url ? (
-                  <img src={team.logo_url} alt="" className="w-7 h-7 object-contain" />
+                  <img src={team.logo_url} alt="" className="w-8 h-8 object-contain" />
                 ) : (
-                  <div className="w-7 h-7 rounded bg-border flex items-center justify-center text-[10px] font-bold text-muted">{team.short_name}</div>
+                  <div className="w-8 h-8 slc-cyber-clip bg-bg-alt flex items-center justify-center text-[11px] font-black text-text-secondary">{team.short_name}</div>
                 )}
                 <span className="font-medium text-sm flex-1">{team.name}</span>
                 <span className="text-[10px] text-muted font-heading">{team.short_name}</span>
@@ -350,56 +357,56 @@ function ResultCard({ match, onSubmit, saving }: {
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="font-heading font-bold text-sm">
-            {match.team_a.short_name} vs {match.team_b.short_name}
+    <div className="bg-card border border-border slc-cyber-clip p-6 space-y-5 relative overflow-hidden">
+      <div className="flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-3">
+          <span className="font-heading font-black text-lg tracking-widest uppercase">
+            {match.team_a.short_name} <span className="text-text-secondary mx-1 text-xs">VS</span> {match.team_b.short_name}
           </span>
-          <span className="text-[10px] bg-border text-text-secondary px-1.5 rounded font-heading">BO{match.best_of}</span>
+          <span className="text-[10px] bg-bg border border-border text-text-secondary px-2 py-0.5 font-heading font-bold tracking-widest uppercase">BO{match.best_of}</span>
           {match.status === "live" && (
-            <span className="text-[10px] bg-r6-red text-white px-1.5 rounded font-bold animate-pulse">LIVE</span>
+            <span className="text-[10px] bg-r6-red text-white px-2 py-0.5 font-black tracking-widest uppercase animate-pulse border border-r6-red">LIVE</span>
           )}
         </div>
-        <span className="text-[10px] text-muted">{match.stage}</span>
+        <span className="text-[10px] text-text-secondary font-heading tracking-widest uppercase font-bold">{match.stage}</span>
       </div>
 
       {/* Score input */}
-      <div className="flex items-center justify-center gap-4">
-        <div className="flex items-center gap-2">
-          <span className="font-heading font-bold text-sm w-12 text-right">{match.team_a.short_name}</span>
+      <div className="flex items-center justify-center gap-5 relative z-10">
+        <div className="flex items-center gap-3">
+          <span className="font-heading font-black text-base w-14 text-right uppercase tracking-widest">{match.team_a.short_name}</span>
           <input
             type="number" min="0" max="16" value={scoreA}
             onChange={e => setScoreA(+e.target.value)}
-            className="w-14 bg-bg border border-border rounded-lg px-2 py-1.5 text-center text-lg font-heading font-bold focus:ring-1 focus:ring-accent focus:outline-none"
+            className="w-16 bg-bg border border-border slc-cyber-clip px-3 py-2 text-center text-xl font-heading font-black focus:border-accent focus:outline-none transition"
           />
         </div>
-        <span className="text-muted font-heading">—</span>
-        <div className="flex items-center gap-2">
+        <span className="text-text-secondary font-heading font-black text-xl">—</span>
+        <div className="flex items-center gap-3">
           <input
             type="number" min="0" max="16" value={scoreB}
             onChange={e => setScoreB(+e.target.value)}
-            className="w-14 bg-bg border border-border rounded-lg px-2 py-1.5 text-center text-lg font-heading font-bold focus:ring-1 focus:ring-accent focus:outline-none"
+            className="w-16 bg-bg border border-border slc-cyber-clip px-3 py-2 text-center text-xl font-heading font-black focus:border-accent focus:outline-none transition"
           />
-          <span className="font-heading font-bold text-sm w-12">{match.team_b.short_name}</span>
+          <span className="font-heading font-black text-base w-14 uppercase tracking-widest">{match.team_b.short_name}</span>
         </div>
       </div>
 
       {/* Winner buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-3 relative z-10 pt-2">
         <button
           onClick={() => submit(match.team_a_id)}
           disabled={saving}
-          className="flex-1 bg-success/10 hover:bg-success/20 text-success font-heading font-bold text-xs py-2 rounded-lg tracking-wider uppercase transition cursor-pointer disabled:opacity-50"
+          className="flex-1 bg-success/10 hover:bg-success border border-success/30 hover:border-success text-success hover:text-bg font-heading font-black text-xs py-3 slc-cyber-clip tracking-widest uppercase transition cursor-pointer disabled:opacity-50"
         >
-          ✓ {match.team_a.short_name} Gana
+          ✓ {match.team_a.short_name} GANA
         </button>
         <button
           onClick={() => submit(match.team_b_id)}
           disabled={saving}
-          className="flex-1 bg-success/10 hover:bg-success/20 text-success font-heading font-bold text-xs py-2 rounded-lg tracking-wider uppercase transition cursor-pointer disabled:opacity-50"
+          className="flex-1 bg-success/10 hover:bg-success border border-success/30 hover:border-success text-success hover:text-bg font-heading font-black text-xs py-3 slc-cyber-clip tracking-widest uppercase transition cursor-pointer disabled:opacity-50"
         >
-          ✓ {match.team_b.short_name} Gana
+          ✓ {match.team_b.short_name} GANA
         </button>
       </div>
     </div>
