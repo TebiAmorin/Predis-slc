@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -34,7 +35,7 @@ export function Header() {
       setLoading(false);
     }
     getUser();
-  }, []);
+  }, [supabase]);
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
 
@@ -57,18 +58,15 @@ export function Header() {
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between relative">
         <div className="flex items-center gap-8">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-r6-red flex items-center justify-center btn-skew text-white group-hover:bg-accent-hover transition-colors">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current skew-x-[15deg]">
-                <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z" opacity="0.3"/>
-                <path d="M9 9h6v6H9V9z"/>
-              </svg>
+            <div className="w-8 h-8 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Image src="/fantasix_logoW.png" alt="Fantasix Logo" width={32} height={32} className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
             </div>
             <div className="hidden sm:block">
               <h1 className="font-heading font-black text-sm leading-none tracking-widest text-text uppercase">
-                Six Invitational
+                Six Major
               </h1>
               <p className="text-[10px] text-r6-red font-bold tracking-widest uppercase mt-0.5">
-                PARIS 2026
+                SALT LAKE CITY
               </p>
             </div>
           </Link>
@@ -110,7 +108,7 @@ export function Header() {
           ) : user ? (
             <div className="flex items-center gap-3 bg-card px-4 py-1.5 border border-border">
               {user.avatar_url && (
-                <img src={user.avatar_url} alt="" className="w-6 h-6 rounded" />
+                <Image src={user.avatar_url} alt="" width={24} height={24} className="rounded" unoptimized />
               )}
               <span className="text-[11px] font-heading font-bold tracking-widest uppercase hidden sm:block max-w-[100px] truncate text-text">
                 {user.display_name || user.username}

@@ -23,6 +23,9 @@ export const metadata: Metadata = {
     description: "Predice los ganadores y compite por un premio exclusivo del Major",
     type: "website",
   },
+  icons: {
+    icon: "/fantasix_logoW.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import Image from "next/image";
 import { MatchesGrid } from "@/components/matches-grid";
 
 export const dynamic = "force-dynamic";
@@ -184,7 +185,7 @@ export default async function Home() {
                   {i + 1}
                 </span>
                 {entry.avatar_url ? (
-                  <img src={entry.avatar_url} alt="" className="w-9 h-9 slc-cyber-clip" />
+                  <Image src={entry.avatar_url} alt="" width={36} height={36} className="w-9 h-9 slc-cyber-clip object-cover" unoptimized />
                 ) : (
                   <div className="w-9 h-9 slc-cyber-clip bg-border" />
                 )}

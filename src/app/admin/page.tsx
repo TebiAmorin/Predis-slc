@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Team, Match } from "@/lib/types";
 
@@ -34,7 +35,7 @@ export default function AdminPage() {
       .select("*, team_a:teams!matches_team_a_id_fkey(*), team_b:teams!matches_team_b_id_fkey(*)")
       .order("match_date", { ascending: true });
     setMatches(m || []);
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     (async () => {
@@ -45,7 +46,7 @@ export default function AdminPage() {
       if (data?.is_admin) await loadData();
       setLoading(false);
     })();
-  }, [loadData]);
+  }, [loadData, supabase]);
 
   async function addTeam(e: React.FormEvent) {
     e.preventDefault();
@@ -327,7 +328,7 @@ export default function AdminPage() {
             {teams.map(team => (
               <div key={team.id} className="flex items-center gap-4 px-5 py-3 border-b border-border/50 last:border-0 hover:bg-card-hover transition">
                 {team.logo_url ? (
-                  <img src={team.logo_url} alt="" className="w-8 h-8 object-contain" />
+                  <Image src={team.logo_url} alt="" width={32} height={32} className="w-8 h-8 object-contain" unoptimized />
                 ) : (
                   <div className="w-8 h-8 slc-cyber-clip bg-bg-alt flex items-center justify-center text-[11px] font-black text-text-secondary">{team.short_name}</div>
                 )}
