@@ -7,7 +7,7 @@ export default function LoginPage() {
 
   async function handleLogin() {
     await supabase.auth.signInWithOAuth({
-      provider: "twitter",
+      provider: "x",
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
   }
@@ -22,43 +22,43 @@ export default function LoginPage() {
         <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-r6-red/40 m-2" />
         
         <div>
-          <div className="w-16 h-16 bg-r6-red slc-cyber-clip flex items-center justify-center font-heading font-black text-2xl text-white mx-auto shadow-[0_0_15px_rgba(255,0,60,0.5)]">
-            R6
+          <div className="w-16 h-16 flex items-center justify-center mx-auto mb-2">
+            <img src="/fantasix_logoW.png" alt="Fantasix Logo" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" />
           </div>
-          <h1 className="font-heading font-black text-3xl tracking-widest mt-6 text-text drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">
+          <h1 className="font-heading font-black text-3xl tracking-widest mt-6 text-text uppercase">
             PREDICCIONES
           </h1>
-          <p className="font-heading font-bold text-accent text-sm tracking-[0.3em] mt-1">
-            BLAST MAJOR SLC 2026
+          <p className="font-heading font-bold text-r6-red text-sm tracking-[0.3em] mt-1 uppercase">
+            SIX MAJOR SLC
           </p>
         </div>
 
         <div className="space-y-4 text-sm text-text-secondary">
-          <p className="font-heading tracking-widest uppercase text-xs border-b border-border/50 pb-2">Inicia sesión con 𝕏 para:</p>
-          <ul className="text-left space-y-3 text-[13px] font-medium bg-bg-alt/50 p-4 slc-cyber-clip border border-border/50">
+          <p className="font-heading tracking-widest uppercase text-xs border-b border-border/50 pb-2 font-bold">Inicia sesión con 𝕏 para:</p>
+          <ul className="text-left space-y-3 text-[13px] font-medium bg-bg-alt/50 p-5 slc-cyber-clip border border-border/50">
             <li className="flex items-center gap-3">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full shadow-[0_0_5px_rgba(209,242,0,0.8)]"></span> Predecir ganadores de cada partido
+              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span> Predecir ganadores de cada partido
             </li>
             <li className="flex items-center gap-3">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full shadow-[0_0_5px_rgba(209,242,0,0.8)]"></span> Competir en el leaderboard
+              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span> Competir en el leaderboard
             </li>
             <li className="flex items-center gap-3">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full shadow-[0_0_5px_rgba(209,242,0,0.8)]"></span> Compartir tus predicciones
+              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span> Compartir tus predicciones
             </li>
             <li className="flex items-center gap-3 text-text">
-              <span className="text-success drop-shadow-[0_0_5px_rgba(0,255,136,0.5)]">🏆</span> Optar al premio del #1
+              <span className="text-success text-lg">🏆</span> Optar al premio del #1
             </li>
           </ul>
         </div>
 
         <button
           onClick={handleLogin}
-          className="w-full bg-accent hover:bg-accent-hover text-bg font-heading font-black text-lg py-4 slc-cyber-clip tracking-widest uppercase transition cursor-pointer flex items-center justify-center gap-3 shadow-[0_0_20px_rgba(209,242,0,0.2)] hover:shadow-[0_0_30px_rgba(209,242,0,0.4)] hover:-translate-y-1"
+          className="w-full bg-r6-red hover:bg-r6-red/80 text-white font-heading font-black text-lg py-4 btn-skew tracking-widest uppercase transition cursor-pointer flex items-center justify-center gap-3 hover:-translate-y-1"
         >
           <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-          Login con 𝕏
+          LOGIN CON 𝕏
         </button>
 
         <p className="text-[10px] text-text-secondary font-heading tracking-widest uppercase opacity-70">
