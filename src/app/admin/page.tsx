@@ -150,7 +150,6 @@ export default function AdminPage() {
   if (!isAdmin) return <div className="p-10">No autorizado.</div>;
 
   const inputStyle = "bg-[#1e2330] border border-[#2c3345] rounded px-2 py-1 text-sm focus:outline-none focus:border-[#4a5568]";
-  const btnStyle = "bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-3 py-1.5 rounded text-xs font-semibold disabled:opacity-50 transition-colors";
 
   return (
     <div className="font-sans text-sm max-w-[1400px] mx-auto p-4 space-y-8 text-gray-200">

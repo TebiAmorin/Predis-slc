@@ -129,7 +129,7 @@ export function Header() {
                     <Image src={user.avatar_url} alt="" width={36} height={36} className="rounded-full border-2 border-border group-hover:border-accent transition-colors relative z-10" unoptimized />
                   ) : (
                     <div className="w-9 h-9 rounded-full border-2 border-border bg-card flex items-center justify-center text-[10px] font-black text-text relative z-10">
-                      {user.username[0].toUpperCase()}
+                      {(user.display_name || user.username || "U")[0].toUpperCase()}
                     </div>
                   )}
                 </div>

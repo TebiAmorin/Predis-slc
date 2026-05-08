@@ -29,7 +29,7 @@ export default async function PrediccionesPage() {
   const { data: statsData, error: statsError } = await supabase.rpc("get_match_stats");
   const matchStats: Record<string, {a: number, b: number}> = {};
   if (!statsError && statsData) {
-    statsData.forEach((s: any) => {
+    (statsData as { match_id: string; team_a_picks: number; team_b_picks: number }[]).forEach((s) => {
       matchStats[s.match_id] = { a: Number(s.team_a_picks), b: Number(s.team_b_picks) };
     });
   }

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import Image from "next/image";
 import type { Match, Team } from "@/lib/types";
 import { StreamContainer } from "@/components/stream-container";
 
@@ -237,7 +238,11 @@ function SidebarMatch({ match, prediction }: { match: Match & { team_a: Team; te
 
       <div className="flex items-center justify-between">
         <div className={`flex flex-col items-center gap-2 group-hover:scale-105 transition-transform duration-500 ${prediction === match.team_a_id ? "text-accent" : "text-text"}`}>
-          <img src={match.team_a.logo_url || ""} className={`w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] ${prediction === match.team_a_id ? "drop-shadow-[0_0_12px_rgba(209,242,0,0.3)]" : ""}`} alt="" />
+          {match.team_a.logo_url ? (
+            <Image src={match.team_a.logo_url} width={40} height={40} className={`w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] ${prediction === match.team_a_id ? "drop-shadow-[0_0_12px_rgba(209,242,0,0.3)]" : ""}`} alt="" unoptimized />
+          ) : (
+            <div className="w-10 h-10 bg-white/5 rounded flex items-center justify-center text-[10px] font-black">{match.team_a.short_name[0]}</div>
+          )}
           <span className="font-heading font-black text-xs tracking-[0.2em] uppercase italic">{match.team_a.short_name}</span>
           {prediction === match.team_a_id && <div className="w-4 h-1 bg-accent rounded-full shadow-[0_0_8px_rgba(209,242,0,0.5)]" />}
         </div>
@@ -247,7 +252,11 @@ function SidebarMatch({ match, prediction }: { match: Match & { team_a: Team; te
         </div>
 
         <div className={`flex flex-col items-center gap-2 group-hover:scale-105 transition-transform duration-500 ${prediction === match.team_b_id ? "text-accent" : "text-text"}`}>
-          <img src={match.team_b.logo_url || ""} className={`w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] ${prediction === match.team_b_id ? "drop-shadow-[0_0_12px_rgba(209,242,0,0.3)]" : ""}`} alt="" />
+          {match.team_b.logo_url ? (
+            <Image src={match.team_b.logo_url} width={40} height={40} className={`w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] ${prediction === match.team_b_id ? "drop-shadow-[0_0_12px_rgba(209,242,0,0.3)]" : ""}`} alt="" unoptimized />
+          ) : (
+            <div className="w-10 h-10 bg-white/5 rounded flex items-center justify-center text-[10px] font-black">{match.team_b.short_name[0]}</div>
+          )}
           <span className="font-heading font-black text-xs tracking-[0.2em] uppercase italic">{match.team_b.short_name}</span>
           {prediction === match.team_b_id && <div className="w-4 h-1 bg-accent rounded-full shadow-[0_0_8px_rgba(209,242,0,0.5)]" />}
         </div>

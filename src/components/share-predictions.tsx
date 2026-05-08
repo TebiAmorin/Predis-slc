@@ -5,10 +5,12 @@ import { toPng } from "html-to-image";
 import type { Match, Team } from "@/lib/types";
 import { toast } from "sonner";
 
+import { User } from "@supabase/supabase-js";
+
 type Props = {
   matches: (Match & { team_a: Team; team_b: Team })[];
   userPredictions: Record<string, string>;
-  user: any;
+  user: User;
 };
 
 export function SharePredictions({ matches, userPredictions, user }: Props) {

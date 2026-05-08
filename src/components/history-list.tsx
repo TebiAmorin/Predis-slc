@@ -40,7 +40,7 @@ export function HistoryList({ predictions }: HistoryListProps) {
         ].map((f) => (
           <button
             key={f.id}
-            onClick={() => setFilter(f.id as any)}
+            onClick={() => setFilter(f.id as "all" | "correct" | "wrong" | "pending")}
             className={`shrink-0 flex items-center gap-2 px-4 py-2 text-[10px] font-heading font-black tracking-widest uppercase transition-colors border slc-cyber-clip ${
               filter === f.id 
                 ? "bg-accent border-accent text-bg" 

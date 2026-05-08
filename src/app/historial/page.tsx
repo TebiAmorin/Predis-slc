@@ -79,7 +79,9 @@ export default async function HistorialPage() {
       {/* Lista Compacta Interactiva */}
       <div className="pt-2">
         {predictions && predictions.length > 0 ? (
-          <HistoryList predictions={predictions as any} />
+          <HistoryList 
+            predictions={predictions as unknown as Parameters<typeof HistoryList>[0]['predictions']} 
+          />
         ) : (
           <div className="text-center py-14 bg-bg-alt/50 slc-cyber-clip border border-border">
             <p className="text-text-secondary font-heading tracking-widest uppercase font-bold text-sm">No has hecho predicciones aún</p>
