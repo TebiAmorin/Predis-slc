@@ -34,19 +34,53 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
   };
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
 
+  // Convert external images to base64 to avoid CORS issues with html-to-image
+  async function preloadImages(container: HTMLElement) {
+    const imgs = container.querySelectorAll("img");
+    await Promise.all(
+      Array.from(imgs).map(async (img) => {
+        if (!img.src || img.src.startsWith("data:")) return;
+        try {
+          const res = await fetch(img.src, { mode: "no-cors" }).catch(() => null);
+          if (!res || !res.ok) {
+            // If fetch fails (CORS), use a proxy or hide the image
+            img.style.display = "none";
+            return;
+          }
+          const blob = await res.blob();
+          const reader = new FileReader();
+          const dataUrl = await new Promise<string>((resolve) => {
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.readAsDataURL(blob);
+          });
+          img.src = dataUrl;
+        } catch {
+          img.style.display = "none";
+        }
+      })
+    );
+  }
+
   async function handleShare() {
     if (!ref.current) return;
     setGenerating(true);
     try {
-      const dataUrl = await toPng(ref.current, { 
-        cacheBust: true, 
+      // Clone the node to avoid modifying the visible DOM
+      const clone = ref.current.cloneNode(true) as HTMLElement;
+      clone.style.position = "absolute";
+      clone.style.left = "-9999px";
+      document.body.appendChild(clone);
+
+      await preloadImages(clone);
+
+      const dataUrl = await toPng(clone, {
+        cacheBust: true,
         pixelRatio: 3,
         backgroundColor: "#07090D",
-        style: {
-          fontFamily: "var(--font-heading)"
-        }
       });
-      
+
+      document.body.removeChild(clone);
+
       const link = document.createElement("a");
       link.download = `mis-${mode}-slc.png`;
       link.href = dataUrl;
@@ -54,7 +88,22 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
       toast.success("¡Imagen descargada!");
     } catch (err) {
       console.error("Failed to generate image", err);
-      toast.error("Error al generar la imagen");
+      // Fallback: try directly without preloading
+      try {
+        const dataUrl = await toPng(ref.current!, {
+          cacheBust: false,
+          pixelRatio: 2,
+          backgroundColor: "#07090D",
+          skipFonts: true,
+        });
+        const link = document.createElement("a");
+        link.download = `mis-${mode}-slc.png`;
+        link.href = dataUrl;
+        link.click();
+        toast.success("¡Imagen descargada!");
+      } catch {
+        toast.error("Error al generar la imagen. Prueba con una captura de pantalla.");
+      }
     } finally {
       setGenerating(false);
     }
@@ -106,11 +155,12 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                   <div className="relative">
                     <div className="absolute inset-0 bg-accent/30 blur-xl rounded-full" />
                     {(user.user_metadata?.avatar_url && !avatarError) ? (
-                      <img 
-                        src={user.user_metadata.avatar_url.replace("_normal", "_400x400")} 
-                        alt="Avatar" 
+                      <img
+                        src={user.user_metadata.avatar_url.replace("_normal", "_200x200")}
+                        alt="Avatar"
                         onError={() => setAvatarError(true)}
-                        className="w-28 h-28 rounded-full border-4 border-accent relative z-10 object-cover shadow-[0_0_25px_rgba(209,242,0,0.4)]" 
+                        crossOrigin="anonymous"
+                        className="w-28 h-28 rounded-full border-4 border-accent relative z-10 object-cover shadow-[0_0_25px_rgba(209,242,0,0.4)]"
                       />
                     ) : (
                       <div className="w-28 h-28 rounded-full border-4 border-accent bg-card flex items-center justify-center text-4xl text-accent font-black relative z-10 uppercase">

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { HistoryList } from "@/components/history-list";
+import { HistorialShare } from "@/components/historial-share";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,19 @@ export default async function HistorialPage() {
     `)
     .eq("user_id", session.user.id)
     .order("created_at", { ascending: false });
+
+  // Get matches with teams for the share component
+  const { data: allMatches } = await supabase
+    .from("matches")
+    .select("*, team_a:teams!matches_team_a_id_fkey(*), team_b:teams!matches_team_b_id_fkey(*)")
+    .order("match_date", { ascending: true });
+
+  const userPredictions: Record<string, string> = {};
+  if (predictions) {
+    predictions.forEach((p: { match_id: string; predicted_team_id: string }) => {
+      userPredictions[p.match_id] = p.predicted_team_id;
+    });
+  }
 
   const total = predictions?.length || 0;
   const correct = predictions?.filter(p =>
@@ -91,6 +105,15 @@ export default async function HistorialPage() {
           </div>
         )}
       </div>
+
+      {/* Share Card */}
+      {allMatches && allMatches.length > 0 && (
+        <HistorialShare
+          matches={allMatches}
+          userPredictions={userPredictions}
+          user={session.user}
+        />
+      )}
     </div>
   );
 }

@@ -46,7 +46,11 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
 
   const isCompleted = match.status === "completed";
   const isLive = match.status === "live";
-  const isLocked = match.status !== "upcoming" || (match.lock_date && new Date(match.lock_date) <= new Date());
+  const [isLocked, setIsLocked] = useState(match.status !== "upcoming");
+
+  useEffect(() => {
+    setIsLocked(match.status !== "upcoming" || (!!match.lock_date && new Date(match.lock_date) <= new Date()));
+  }, [match.status, match.lock_date]);
 
   async function handlePredict(teamId: string) {
     if (readonlyRedirect) {
