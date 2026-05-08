@@ -178,6 +178,23 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
               </span>
               <span className="text-[9px] text-text-secondary uppercase tracking-widest font-bold mt-1 bg-bg-alt px-2 py-0.5 border border-border">FINAL</span>
             </>
+          ) : isLiveDynamic && match.score_a !== null && match.score_a !== undefined ? (
+            <>
+              <span className="font-heading font-black text-2xl sm:text-3xl whitespace-nowrap text-text flex items-center gap-1.5">
+                <span className="text-r6-red">{match.score_a}</span>
+                <span className="text-text-secondary text-lg">-</span>
+                <span className="text-r6-red">{match.score_b}</span>
+              </span>
+              <a
+                href="https://twitch.tv/vetelcito01"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-1 bg-r6-red text-white text-[10px] px-2 py-0.5 font-black tracking-widest uppercase animate-pulse border border-r6-red hover:bg-white hover:text-r6-red transition"
+                title="Ver en Twitch"
+              >
+                LIVE
+              </a>
+            </>
           ) : (
             <>
               <span className="font-heading font-bold text-xl sm:text-2xl text-border-light tracking-widest">VS</span>

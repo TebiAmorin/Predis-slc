@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Team, Match } from "@/lib/types";
 
 type MatchWithTeams = Match & { team_a: Team; team_b: Team };
+type ModalMode = "edit" | "score" | null;
 
 export default function AdminPage() {
   const supabase = createClient();
@@ -28,9 +29,16 @@ export default function AdminPage() {
   const [teamGroup, setTeamGroup] = useState("Phase 1");
 
   // Modal State
-  const [editingMatch, setEditingMatch] = useState<MatchWithTeams | null>(null);
+  const [modalMatch, setModalMatch] = useState<MatchWithTeams | null>(null);
+  const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
+
+  // Edit modal fields
+  const [editDay, setEditDay] = useState("");
+  const [editTime, setEditTime] = useState("");
+  const [editStage, setEditStage] = useState("");
+  const [editBo, setEditBo] = useState(1);
 
   // Filters
   const [searchFilter, setSearchFilter] = useState("");
@@ -44,6 +52,28 @@ export default function AdminPage() {
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
+  }
+
+  function openEditModal(match: MatchWithTeams) {
+    const d = new Date(match.match_date);
+    setModalMatch(match);
+    setModalMode("edit");
+    setEditDay(d.getDate().toString());
+    setEditTime(`${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`);
+    setEditStage(match.stage);
+    setEditBo(match.best_of);
+  }
+
+  function openScoreModal(match: MatchWithTeams) {
+    setModalMatch(match);
+    setModalMode("score");
+    setScoreA(match.score_a ?? 0);
+    setScoreB(match.score_b ?? 0);
+  }
+
+  function closeModal() {
+    setModalMatch(null);
+    setModalMode(null);
   }
 
   const loadData = useCallback(async () => {
@@ -101,6 +131,26 @@ export default function AdminPage() {
     showToast("Partido creado");
   }
 
+  async function saveMatchEdit() {
+    if (!modalMatch) return;
+    setSaving(true);
+    const [hours, minutes] = editTime.split(":");
+    const d = new Date(modalMatch.match_date);
+    const localDate = new Date(2026, d.getMonth(), parseInt(editDay), parseInt(hours), parseInt(minutes));
+    const date = localDate.toISOString();
+
+    await supabase.from("matches").update({
+      match_date: date,
+      lock_date: date,
+      stage: editStage,
+      best_of: editBo,
+    }).eq("id", modalMatch.id);
+    closeModal();
+    await loadData();
+    setSaving(false);
+    showToast("Partido actualizado");
+  }
+
   async function addTeam(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -121,15 +171,29 @@ export default function AdminPage() {
     showToast(`Estado: ${status}`);
   }
 
+  async function updateLiveScore(matchId: string, sA: number, sB: number) {
+    setSaving(true);
+    await supabase.from("matches").update({
+      score_a: sA, score_b: sB, status: "live",
+    }).eq("id", matchId);
+    // Update the modalMatch in-place so UI reflects it
+    if (modalMatch && modalMatch.id === matchId) {
+      setModalMatch({ ...modalMatch, score_a: sA, score_b: sB, status: "live" });
+    }
+    await loadData();
+    setSaving(false);
+    showToast(`Score en vivo: ${sA}-${sB}`);
+  }
+
   async function submitResult(matchId: string, winnerId: string, sA: number, sB: number) {
     setSaving(true);
     await supabase.from("matches").update({
       winner_id: winnerId, score_a: sA, score_b: sB, status: "completed",
     }).eq("id", matchId);
-    setEditingMatch(null);
+    closeModal();
     await loadData();
     setSaving(false);
-    showToast("Resultado guardado");
+    showToast("Resultado final guardado");
   }
 
   async function revertResult(matchId: string) {
@@ -190,25 +254,24 @@ export default function AdminPage() {
 
   // Quick score buttons based on best_of
   function getQuickScores(bo: number) {
-    if (bo === 1) return [
-      { a: 1, b: 0 },
-      { a: 0, b: 1 },
-    ];
-    if (bo === 3) return [
-      { a: 2, b: 0 },
-      { a: 0, b: 2 },
-      { a: 2, b: 1 },
-      { a: 1, b: 2 },
-    ];
-    // BO5
-    return [
-      { a: 3, b: 0 },
-      { a: 0, b: 3 },
-      { a: 3, b: 1 },
-      { a: 1, b: 3 },
-      { a: 3, b: 2 },
-      { a: 2, b: 3 },
-    ];
+    if (bo === 1) return [{ a: 1, b: 0 }, { a: 0, b: 1 }];
+    if (bo === 3) return [{ a: 2, b: 0 }, { a: 0, b: 2 }, { a: 2, b: 1 }, { a: 1, b: 2 }];
+    return [{ a: 3, b: 0 }, { a: 0, b: 3 }, { a: 3, b: 1 }, { a: 1, b: 3 }, { a: 3, b: 2 }, { a: 2, b: 3 }];
+  }
+
+  // All possible intermediate scores for live updates
+  function getLiveScoreOptions(bo: number) {
+    const maxWin = Math.ceil(bo / 2);
+    const options: { a: number; b: number }[] = [];
+    for (let a = 0; a <= maxWin; a++) {
+      for (let b = 0; b <= maxWin; b++) {
+        if (a === 0 && b === 0) continue;
+        // Exclude "final" scores where someone already won
+        if (a === maxWin && b === maxWin) continue;
+        options.push({ a, b });
+      }
+    }
+    return options;
   }
 
   if (loading) return (
@@ -410,7 +473,7 @@ export default function AdminPage() {
                     <th className="p-4 font-medium text-center uppercase tracking-widest">Fmt</th>
                     <th className="p-4 font-medium uppercase tracking-widest">Estado</th>
                     <th className="p-4 font-medium text-right uppercase tracking-widest">Equipos</th>
-                    <th className="p-4 font-medium text-center uppercase tracking-widest">Res</th>
+                    <th className="p-4 font-medium text-center uppercase tracking-widest">Score</th>
                     <th className="p-4 font-medium text-right uppercase tracking-widest">Acciones</th>
                   </tr>
                 </thead>
@@ -419,6 +482,7 @@ export default function AdminPage() {
                     const d = new Date(match.match_date);
                     const isFinished = match.status === "completed";
                     const isLive = match.status === "live";
+                    const hasLiveScore = !isFinished && (match.score_a !== null && match.score_a !== undefined);
                     return (
                       <tr key={match.id} className={`transition-colors ${isLive ? "bg-red-900/10 hover:bg-red-900/20" : isFinished ? "hover:bg-[#1e2330] opacity-60" : "hover:bg-[#1e2330]"}`}>
                         <td className="p-4 text-xs text-gray-400 whitespace-nowrap">
@@ -443,25 +507,36 @@ export default function AdminPage() {
                         <td className="p-4 text-center whitespace-nowrap">
                           {isFinished ? (
                             <span className="font-mono text-lg font-black text-green-400 bg-green-400/10 px-3 py-1 rounded-lg">{match.score_a}-{match.score_b}</span>
+                          ) : hasLiveScore ? (
+                            <span className="font-mono text-lg font-black text-red-400 bg-red-400/10 px-3 py-1 rounded-lg animate-pulse">{match.score_a}-{match.score_b}</span>
                           ) : (
-                            <span className="text-xs text-gray-500">-</span>
+                            <span className="text-xs text-gray-500">—</span>
                           )}
                         </td>
-                        <td className="p-4 text-right whitespace-nowrap space-x-2">
-                          {isFinished ? (
-                            <button onClick={() => revertResult(match.id)} className="text-xs text-gray-400 hover:text-white border border-[#2c3345] hover:border-yellow-500 px-3 py-1.5 rounded transition-all font-bold uppercase">Deshacer</button>
-                          ) : (
-                            <>
-                              {match.status === "upcoming" && (
-                                <button onClick={() => setStatus(match.id, "live")} className="text-xs font-black bg-red-500/20 text-red-400 hover:bg-red-500/40 px-3 py-1.5 rounded uppercase tracking-wider transition-all">LIVE</button>
-                              )}
-                              {match.status === "live" && (
-                                <button onClick={() => setStatus(match.id, "upcoming")} className="text-xs font-bold text-gray-400 hover:text-white border border-[#2c3345] hover:border-yellow-500 px-3 py-1.5 rounded transition-all uppercase">PAUSE</button>
-                              )}
-                              <button onClick={() => { setEditingMatch(match); setScoreA(0); setScoreB(0); }} className="text-xs font-black bg-green-500/20 text-green-400 hover:bg-green-500/40 px-3 py-1.5 rounded uppercase tracking-wider transition-all">RESULTADO</button>
-                            </>
-                          )}
-                          <button onClick={() => deleteMatch(match.id)} className="text-xs text-red-500/50 hover:text-red-400 font-bold p-1 transition-colors" title="Eliminar partido">✕</button>
+                        <td className="p-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* Edit button - always available unless completed */}
+                            {!isFinished && (
+                              <button onClick={() => openEditModal(match)} className="text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20 px-2.5 py-1.5 rounded transition-all" title="Editar partido">
+                                ✏️
+                              </button>
+                            )}
+
+                            {isFinished ? (
+                              <button onClick={() => revertResult(match.id)} className="text-xs text-gray-400 hover:text-white border border-[#2c3345] hover:border-yellow-500 px-3 py-1.5 rounded transition-all font-bold uppercase">Deshacer</button>
+                            ) : (
+                              <>
+                                {match.status === "upcoming" && (
+                                  <button onClick={() => setStatus(match.id, "live")} className="text-xs font-black bg-red-500/20 text-red-400 hover:bg-red-500/40 px-3 py-1.5 rounded uppercase tracking-wider transition-all">LIVE</button>
+                                )}
+                                {isLive && (
+                                  <button onClick={() => setStatus(match.id, "upcoming")} className="text-xs font-bold text-gray-400 hover:text-white border border-[#2c3345] hover:border-yellow-500 px-2.5 py-1.5 rounded transition-all uppercase">PAUSE</button>
+                                )}
+                                <button onClick={() => openScoreModal(match)} className="text-xs font-black bg-orange-500/20 text-orange-400 hover:bg-orange-500/40 px-3 py-1.5 rounded uppercase tracking-wider transition-all">SCORE</button>
+                              </>
+                            )}
+                            <button onClick={() => deleteMatch(match.id)} className="text-xs text-red-500/50 hover:text-red-400 font-bold p-1 transition-colors" title="Eliminar partido">✕</button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -542,60 +617,213 @@ export default function AdminPage() {
 
       </div>
 
-      {/* MODAL RESULTADO */}
-      {editingMatch && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-md p-4" onClick={(e) => { if (e.target === e.currentTarget) setEditingMatch(null); }}>
-          <div className="bg-[#151923] border border-[#2c3345] rounded-2xl p-8 w-full max-w-3xl shadow-2xl space-y-6">
+      {/* ========== MODAL: EDITAR PARTIDO ========== */}
+      {modalMatch && modalMode === "edit" && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-md p-4" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
+          <div className="bg-[#151923] border border-[#2c3345] rounded-2xl p-8 w-full max-w-xl shadow-2xl space-y-6">
             <div className="flex justify-between items-start border-b border-[#2c3345] pb-4">
               <div>
-                <h2 className="text-2xl font-black text-white uppercase">Establecer Resultado</h2>
-                <p className="text-sm text-gray-400 mt-1">{editingMatch.stage} — BO{editingMatch.best_of}</p>
-                <p className="text-lg font-bold text-gray-300 mt-2">{editingMatch.team_a.short_name} vs {editingMatch.team_b.short_name}</p>
+                <h2 className="text-2xl font-black text-white uppercase">Editar Partido</h2>
+                <p className="text-lg font-bold text-gray-300 mt-2 flex items-center gap-3">
+                  {modalMatch.team_a.logo_url && <img src={modalMatch.team_a.logo_url} className="w-6 h-6 object-contain" alt="" />}
+                  {modalMatch.team_a.short_name}
+                  <span className="text-gray-600 text-sm">vs</span>
+                  {modalMatch.team_b.logo_url && <img src={modalMatch.team_b.logo_url} className="w-6 h-6 object-contain" alt="" />}
+                  {modalMatch.team_b.short_name}
+                </p>
               </div>
-              <button onClick={() => setEditingMatch(null)} className="text-gray-400 hover:text-white p-2 text-2xl font-bold transition-colors">✕</button>
+              <button onClick={closeModal} className="text-gray-400 hover:text-white p-2 text-2xl font-bold transition-colors">✕</button>
             </div>
 
-            {/* Quick result buttons */}
-            <div className="space-y-3">
-              <p className="text-xs text-blue-400 uppercase font-bold tracking-widest text-center">Resultado rápido</p>
-              <div className="grid grid-cols-2 gap-3">
-                {getQuickScores(editingMatch.best_of).map(({ a, b }) => {
-                  const winnerId = a > b ? editingMatch.team_a_id : editingMatch.team_b_id;
-                  const winnerName = a > b ? editingMatch.team_a.short_name : editingMatch.team_b.short_name;
-                  return (
-                    <button
-                      key={`${a}-${b}`}
-                      onClick={() => submitResult(editingMatch.id, winnerId, a, b)}
-                      className="bg-[#1e2330] hover:bg-green-600 border border-[#2c3345] hover:border-green-500 text-gray-200 hover:text-white py-5 rounded-xl text-lg font-bold transition-all shadow-lg"
-                      disabled={saving}
-                    >
-                      {a} - {b} <span className="text-sm opacity-70">(Gana {winnerName})</span>
-                    </button>
-                  );
-                })}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-400 mb-2">Día (Mayo)</label>
+                <input type="number" min="1" max="31" className={`w-full text-lg p-3 ${inputStyle}`} value={editDay} onChange={e => setEditDay(e.target.value)} />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-400 mb-2">Hora</label>
+                <input type="time" className={`w-full text-lg p-3 ${inputStyle}`} value={editTime} onChange={e => setEditTime(e.target.value)} />
               </div>
             </div>
 
-            {/* Manual score */}
-            <details className="border-t border-[#2c3345] pt-4">
-              <summary className="text-sm text-gray-500 uppercase font-bold tracking-widest text-center cursor-pointer hover:text-gray-300 transition-colors">Score Manual</summary>
-              <div className="flex items-center justify-center gap-8 mt-6 bg-[#0f1219] p-6 rounded-xl">
-                <div className="flex flex-col items-center gap-3">
-                  <span className="font-black text-xl uppercase tracking-wider">{editingMatch.team_a.short_name}</span>
-                  <input type="number" min="0" value={scoreA} onChange={e => setScoreA(+e.target.value)} className="w-20 bg-[#1e2330] border-2 border-[#2c3345] text-center text-3xl font-bold p-2 rounded-lg focus:border-blue-500 focus:outline-none" />
-                  <button onClick={() => submitResult(editingMatch.id, editingMatch.team_a_id, scoreA, scoreB)} className="w-full mt-2 text-sm font-bold bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded shadow-lg transition-colors" disabled={saving}>GANADOR</button>
-                </div>
-                <span className="text-4xl font-black text-gray-700 pb-8">-</span>
-                <div className="flex flex-col items-center gap-3">
-                  <span className="font-black text-xl uppercase tracking-wider">{editingMatch.team_b.short_name}</span>
-                  <input type="number" min="0" value={scoreB} onChange={e => setScoreB(+e.target.value)} className="w-20 bg-[#1e2330] border-2 border-[#2c3345] text-center text-3xl font-bold p-2 rounded-lg focus:border-blue-500 focus:outline-none" />
-                  <button onClick={() => submitResult(editingMatch.id, editingMatch.team_b_id, scoreA, scoreB)} className="w-full mt-2 text-sm font-bold bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded shadow-lg transition-colors" disabled={saving}>GANADOR</button>
-                </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-400 mb-2">Fase</label>
+              <select className={`w-full text-lg p-3 ${inputStyle}`} value={editStage} onChange={e => setEditStage(e.target.value)}>
+                {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-400 mb-2">Formato</label>
+              <div className="flex gap-3">
+                {[1, 3, 5].map(n => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setEditBo(n)}
+                    className={`flex-1 py-3 text-lg font-black rounded-lg border transition-all ${
+                      editBo === n
+                        ? "bg-blue-600/30 border-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)]"
+                        : "bg-[#1e2330] border-[#2c3345] text-gray-400 hover:border-gray-500"
+                    }`}
+                  >
+                    BO{n}
+                  </button>
+                ))}
               </div>
-            </details>
+            </div>
+
+            <button
+              onClick={saveMatchEdit}
+              disabled={saving}
+              className="w-full py-4 text-lg font-black bg-blue-600 hover:bg-blue-500 rounded-xl text-white transition-all disabled:opacity-50 shadow-lg uppercase tracking-widest"
+            >
+              {saving ? "Guardando..." : "Guardar Cambios"}
+            </button>
           </div>
         </div>
       )}
+
+      {/* ========== MODAL: SCORE (LIVE + RESULTADO FINAL) ========== */}
+      {modalMatch && modalMode === "score" && (() => {
+        const m = modalMatch;
+        const maxWin = Math.ceil(m.best_of / 2);
+        const isLive = m.status === "live";
+        return (
+          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-md p-4" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
+            <div className="bg-[#151923] border border-[#2c3345] rounded-2xl p-8 w-full max-w-3xl shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="flex justify-between items-start border-b border-[#2c3345] pb-4">
+                <div>
+                  <h2 className="text-2xl font-black text-white uppercase">Score del Partido</h2>
+                  <p className="text-sm text-gray-400 mt-1">{m.stage} — BO{m.best_of}</p>
+                  <p className="text-lg font-bold text-gray-300 mt-2 flex items-center gap-3">
+                    {m.team_a.logo_url && <img src={m.team_a.logo_url} className="w-6 h-6 object-contain" alt="" />}
+                    {m.team_a.short_name}
+                    <span className="text-gray-600 text-sm">vs</span>
+                    {m.team_b.logo_url && <img src={m.team_b.logo_url} className="w-6 h-6 object-contain" alt="" />}
+                    {m.team_b.short_name}
+                  </p>
+                  {m.score_a !== null && m.score_a !== undefined && (
+                    <p className="text-sm text-orange-400 font-bold mt-2">Score actual: {m.score_a} - {m.score_b}</p>
+                  )}
+                </div>
+                <button onClick={closeModal} className="text-gray-400 hover:text-white p-2 text-2xl font-bold transition-colors">✕</button>
+              </div>
+
+              {/* ====== LIVE SCORE SECTION ====== */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  <p className="text-sm text-red-400 uppercase font-black tracking-widest">Score en Vivo</p>
+                  <span className="text-[10px] text-gray-500 ml-auto">Actualiza el marcador sin finalizar el partido</span>
+                </div>
+
+                {/* Quick live score buttons */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                  {getLiveScoreOptions(m.best_of).map(({ a, b }) => {
+                    const isFinal = a === maxWin || b === maxWin;
+                    const isCurrent = m.score_a === a && m.score_b === b;
+                    return (
+                      <button
+                        key={`live-${a}-${b}`}
+                        onClick={() => {
+                          if (isFinal) {
+                            // If it's a winning score, ask to finalize
+                            const winnerId = a === maxWin ? m.team_a_id : m.team_b_id;
+                            submitResult(m.id, winnerId, a, b);
+                          } else {
+                            updateLiveScore(m.id, a, b);
+                          }
+                        }}
+                        disabled={saving || isCurrent}
+                        className={`py-3 rounded-lg border text-base font-bold transition-all ${
+                          isCurrent
+                            ? "bg-orange-500/30 border-orange-500 text-orange-300 cursor-default"
+                            : isFinal
+                            ? "bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/30 hover:border-green-500"
+                            : "bg-[#1e2330] border-[#2c3345] text-gray-300 hover:bg-orange-500/20 hover:border-orange-500/50 hover:text-orange-300"
+                        }`}
+                      >
+                        <span className="font-black">{a} - {b}</span>
+                        {isFinal && <span className="block text-[9px] mt-0.5 opacity-70 uppercase">Final</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Manual +/- controls */}
+                <div className="flex items-center justify-center gap-6 bg-[#0f1219] p-5 rounded-xl border border-[#2c3345]">
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="font-black text-sm uppercase tracking-wider text-gray-400">{m.team_a.short_name}</span>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setScoreA(Math.max(0, scoreA - 1))} className="w-10 h-10 bg-[#1e2330] border border-[#2c3345] rounded-lg text-xl font-bold hover:bg-red-500/20 hover:border-red-500/50 transition-all text-gray-400 hover:text-red-400">−</button>
+                      <span className="w-14 text-center text-3xl font-black text-white">{scoreA}</span>
+                      <button onClick={() => setScoreA(Math.min(maxWin, scoreA + 1))} className="w-10 h-10 bg-[#1e2330] border border-[#2c3345] rounded-lg text-xl font-bold hover:bg-green-500/20 hover:border-green-500/50 transition-all text-gray-400 hover:text-green-400">+</button>
+                    </div>
+                  </div>
+                  <span className="text-3xl font-black text-gray-700 mt-5">-</span>
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="font-black text-sm uppercase tracking-wider text-gray-400">{m.team_b.short_name}</span>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => setScoreB(Math.max(0, scoreB - 1))} className="w-10 h-10 bg-[#1e2330] border border-[#2c3345] rounded-lg text-xl font-bold hover:bg-red-500/20 hover:border-red-500/50 transition-all text-gray-400 hover:text-red-400">−</button>
+                      <span className="w-14 text-center text-3xl font-black text-white">{scoreB}</span>
+                      <button onClick={() => setScoreB(Math.min(maxWin, scoreB + 1))} className="w-10 h-10 bg-[#1e2330] border border-[#2c3345] rounded-lg text-xl font-bold hover:bg-green-500/20 hover:border-green-500/50 transition-all text-gray-400 hover:text-green-400">+</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => updateLiveScore(m.id, scoreA, scoreB)}
+                    disabled={saving}
+                    className="py-3 text-sm font-black bg-orange-500/20 text-orange-400 hover:bg-orange-500/40 border border-orange-500/30 hover:border-orange-500 rounded-xl uppercase tracking-widest transition-all disabled:opacity-50"
+                  >
+                    Actualizar Score en Vivo
+                  </button>
+                  {(scoreA === maxWin || scoreB === maxWin) && (
+                    <button
+                      onClick={() => {
+                        const winnerId = scoreA === maxWin ? m.team_a_id : m.team_b_id;
+                        submitResult(m.id, winnerId, scoreA, scoreB);
+                      }}
+                      disabled={saving}
+                      className="py-3 text-sm font-black bg-green-600 hover:bg-green-500 text-white rounded-xl uppercase tracking-widest transition-all disabled:opacity-50 shadow-lg"
+                    >
+                      Finalizar {scoreA}-{scoreB}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* ====== RESULTADO FINAL RÁPIDO ====== */}
+              <div className="space-y-4 border-t border-[#2c3345] pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  <p className="text-sm text-green-400 uppercase font-black tracking-widest">Resultado Final Rápido</p>
+                  <span className="text-[10px] text-gray-500 ml-auto">Finaliza el partido directamente</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {getQuickScores(m.best_of).map(({ a, b }) => {
+                    const winnerId = a > b ? m.team_a_id : m.team_b_id;
+                    const winnerName = a > b ? m.team_a.short_name : m.team_b.short_name;
+                    return (
+                      <button
+                        key={`final-${a}-${b}`}
+                        onClick={() => submitResult(m.id, winnerId, a, b)}
+                        className="bg-[#1e2330] hover:bg-green-600 border border-[#2c3345] hover:border-green-500 text-gray-200 hover:text-white py-4 rounded-xl text-base font-bold transition-all shadow-lg"
+                        disabled={saving}
+                      >
+                        {a} - {b} <span className="text-sm opacity-70">(Gana {winnerName})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   );
