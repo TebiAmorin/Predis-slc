@@ -219,7 +219,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                       const vs = userPredictions[m.id] === m.team_a_id ? m.team_b : m.team_a;
                       return (
                         <div key={m.id} className={`p-5 border-2 slc-cyber-clip flex items-center gap-5 transition-all shadow-lg ${isCorrect ? 'bg-success/10 border-success/40' : 'bg-r6-red/10 border-r6-red/40'}`}>
-                          <img src={team.logo_url || ""} className="w-16 h-16 object-contain drop-shadow-[0_0_10px_rgba(255,255,255,0.1)]" alt="" />
+                          <img src={team.logo_url || ""} className="w-16 h-16 object-contain" alt="" />
                           <div className="min-w-0">
                             <p className="text-white font-black text-xl truncate uppercase italic">{team.short_name}</p>
                             <p className="text-sm text-text-secondary font-bold uppercase tracking-widest opacity-70">vs {vs.short_name}</p>
@@ -259,7 +259,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                           <div key={match.id} className="bg-black/40 border-2 border-border/60 flex flex-col items-center justify-center p-8 slc-cyber-clip relative group transition-all duration-500 hover:border-accent/40 hover:bg-black/60 hover:-translate-y-2">
                             <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             {team.logo_url ? (
-                              <img src={team.logo_url} alt={team.short_name} className="w-24 h-24 object-contain mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.2)] group-hover:scale-110 transition-transform duration-500" />
+                              <img src={team.logo_url} alt={team.short_name} className="w-24 h-24 object-contain mb-6 group-hover:scale-110 transition-transform duration-500" />
                             ) : (
                               <div className="w-24 h-24 flex items-center justify-center text-3xl font-black text-white">{team.short_name}</div>
                             )}

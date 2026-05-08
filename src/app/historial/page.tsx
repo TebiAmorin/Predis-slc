@@ -2,8 +2,18 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { HistoryList } from "@/components/history-list";
 import { HistorialShare } from "@/components/historial-share";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Historial",
+  description: "Revisa tu historial de predicciones del BLAST R6 Major Salt Lake City 2026. Aciertos, fallos y estadísticas.",
+  openGraph: {
+    title: "Historial - BLAST R6 Major SLC 2026",
+    description: "Revisa tu historial de predicciones del Major de R6 Siege.",
+  },
+};
 
 export default async function HistorialPage() {
   const supabase = await createClient();
@@ -67,25 +77,51 @@ export default async function HistorialPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden">
+      <div className="grid grid-cols-5 gap-3 sm:gap-4">
+        {/* Accuracy ring */}
+        <div className="col-span-5 sm:col-span-1 bg-card border border-border slc-cyber-clip p-5 flex flex-col items-center justify-center relative overflow-hidden animate-fade-in-up">
+          <div className="relative w-20 h-20">
+            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="var(--color-border)"
+                strokeWidth="3"
+              />
+              <path
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                stroke="var(--color-accent)"
+                strokeWidth="3"
+                strokeDasharray={`${total > 0 ? Math.round((correct / (correct + wrong || 1)) * 100) : 0}, 100`}
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="absolute inset-0 flex items-center justify-center font-heading font-black text-xl text-accent">
+              {total > 0 ? Math.round((correct / (correct + wrong || 1)) * 100) : 0}%
+            </span>
+          </div>
+          <p className="text-[9px] text-text-secondary tracking-widest uppercase mt-2 font-bold">PRECISIÓN</p>
+        </div>
+
+        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-1">
           <div className="absolute top-0 left-0 w-1 h-full bg-border-light" />
-          <p className="font-heading font-black text-3xl">{total}</p>
+          <p className="font-heading font-black text-3xl animate-count-up">{total}</p>
           <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">TOTAL</p>
         </div>
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-success shadow-[0_0_8px_rgba(0,255,136,0.8)]" />
-          <p className="font-heading font-black text-3xl text-success drop-shadow-[0_0_8px_rgba(0,255,136,0.5)]">{correct}</p>
+        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-2">
+          <div className="absolute top-0 left-0 w-1 h-full bg-success" />
+          <p className="font-heading font-black text-3xl text-success animate-count-up">{correct}</p>
           <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">ACIERTOS</p>
         </div>
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-r6-red shadow-[0_0_8px_rgba(255,0,60,0.8)]" />
-          <p className="font-heading font-black text-3xl text-r6-red drop-shadow-[0_0_8px_rgba(255,0,60,0.5)]">{wrong}</p>
+        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-3">
+          <div className="absolute top-0 left-0 w-1 h-full bg-r6-red" />
+          <p className="font-heading font-black text-3xl text-r6-red animate-count-up">{wrong}</p>
           <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">FALLOS</p>
         </div>
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-1 h-full bg-accent shadow-[0_0_8px_rgba(209,242,0,0.8)]" />
-          <p className="font-heading font-black text-3xl text-accent drop-shadow-[0_0_8px_rgba(209,242,0,0.5)]">{pending}</p>
+        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-4">
+          <div className="absolute top-0 left-0 w-1 h-full bg-accent" />
+          <p className="font-heading font-black text-3xl text-accent animate-count-up">{pending}</p>
           <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">PENDIENTES</p>
         </div>
       </div>

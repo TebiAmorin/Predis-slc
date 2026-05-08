@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
-  createServerClient(
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
@@ -24,6 +24,11 @@ export async function middleware(request: NextRequest) {
       },
     }
   );
+
+  // IMPORTANT: This refreshes the auth token on every request,
+  // keeping the user session alive. Without this call, sessions
+  // expire and users get logged out.
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }

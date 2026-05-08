@@ -2,8 +2,18 @@ import { createClient } from "@/lib/supabase/server";
 import { MatchFilters } from "@/components/match-filters";
 import { SharePredictions } from "@/components/share-predictions";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Predicciones",
+  description: "Haz tus predicciones para todos los partidos del BLAST R6 Major Salt Lake City 2026. Elige al ganador de cada enfrentamiento.",
+  openGraph: {
+    title: "Predicciones - BLAST R6 Major SLC 2026",
+    description: "Haz tus predicciones para todos los partidos del Major de R6 Siege.",
+  },
+};
 
 export default async function PrediccionesPage() {
   const supabase = await createClient();

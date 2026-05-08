@@ -1,7 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { LeaderboardTable } from "@/components/leaderboard-table";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Leaderboard",
+  description: "Ranking de predicciones del BLAST R6 Major Salt Lake City 2026. Consulta quién lidera las predicciones de Rainbow Six Siege.",
+  openGraph: {
+    title: "Leaderboard - BLAST R6 Major SLC 2026",
+    description: "Ranking de predicciones del Major de R6 Siege. Consulta quién lidera.",
+  },
+};
 
 export default async function LeaderboardPage() {
   const supabase = await createClient();

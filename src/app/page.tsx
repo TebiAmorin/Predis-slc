@@ -2,8 +2,19 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import Image from "next/image";
 import { MatchesGrid } from "@/components/matches-grid";
+import { Countdown } from "@/components/countdown";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Predicciones BLAST R6 Major Salt Lake City 2026 | Rainbow Six Siege",
+  description: "Predice los ganadores del BLAST R6 Major Salt Lake City 2026. Partidos de hoy, predicciones en vivo y leaderboard. Rainbow Six Siege esports.",
+  openGraph: {
+    title: "Predicciones BLAST R6 Major Salt Lake City 2026",
+    description: "Predice los ganadores del Major de Rainbow Six Siege y compite por premios exclusivos.",
+  },
+};
 
 export default async function Home() {
   const supabase = await createClient();
@@ -48,6 +59,9 @@ export default async function Home() {
   const displayMatches = todayMatches && todayMatches.length > 0 ? todayMatches : upcomingMatches;
   const isToday = todayMatches && todayMatches.length > 0;
 
+  // Next upcoming match for countdown
+  const nextMatch = upcomingMatches?.find(m => m.status === "upcoming" && new Date(m.match_date) > new Date());
+
   return (
     <div className="space-y-8">
       {/* Hero */}
@@ -78,16 +92,25 @@ export default async function Home() {
             Predice los ganadores de cada partido y compite por el primer puesto
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+          {nextMatch && (
+            <div className="mt-6 mb-2 flex flex-col items-center gap-2">
+              <p className="text-[10px] text-text-secondary font-heading font-bold tracking-[0.3em] uppercase">
+                Próximo partido en
+              </p>
+              <Countdown targetDate={nextMatch.match_date} />
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
             <Link
               href="/predicciones"
-              className="slc-cyber-clip bg-accent hover:bg-accent-hover text-bg font-heading font-black text-sm px-8 py-3 tracking-widest uppercase transition w-full sm:w-auto text-center shadow-[0_0_20px_rgba(209,242,0,0.2)] hover:shadow-[0_0_30px_rgba(209,242,0,0.4)]"
+              className="slc-cyber-clip bg-accent hover:bg-accent-hover text-bg font-heading font-black text-sm px-8 py-3 tracking-widest uppercase transition w-full sm:w-auto text-center shadow-[0_0_20px_rgba(0,229,209,0.2)] hover:shadow-[0_0_30px_rgba(0,229,209,0.4)] touch-bounce"
             >
               Hacer predicciones
             </Link>
             <Link
               href="/live"
-              className="slc-cyber-clip-reverse bg-card border border-border hover:border-r6-red text-text font-heading font-bold text-sm px-8 py-3 tracking-widest uppercase transition w-full sm:w-auto text-center"
+              className="slc-cyber-clip-reverse bg-card border border-border hover:border-r6-red text-text font-heading font-bold text-sm px-8 py-3 tracking-widest uppercase transition w-full sm:w-auto text-center touch-bounce"
             >
               Ver Stream
             </Link>
@@ -149,11 +172,11 @@ export default async function Home() {
           { href: "/predicciones", icon: "🎯", label: "Predicciones", desc: "Predice ganadores" },
           { href: "/leaderboard", icon: "🏆", label: "Leaderboard", desc: "Ranking" },
           { href: "/historial", icon: "📊", label: "Historial", desc: "Tus predicciones" },
-        ].map((link) => (
+        ].map((link, i) => (
           <Link
             key={link.href}
             href={link.href}
-            className="bg-card slc-cyber-clip border border-border p-5 hover:border-accent/50 hover:bg-card-hover transition-all text-center group relative overflow-hidden"
+            className={`bg-card slc-cyber-clip border border-border p-5 hover:border-accent/50 hover:bg-card-hover transition-all text-center group relative overflow-hidden touch-bounce animate-fade-in-up stagger-${i + 1}`}
           >
             <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/5 transition-colors" />
             <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-border group-hover:border-accent transition-colors m-2" />

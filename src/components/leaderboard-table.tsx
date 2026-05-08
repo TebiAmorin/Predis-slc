@@ -23,8 +23,49 @@ export function LeaderboardTable({ entries, currentUserId }: { entries: Leaderbo
 
   const totalPages = Math.ceil(filteredEntries.length / pageSize);
 
+  // Top 3 for podium (only on first page, no search)
+  const top3 = !search && page === 1 ? filteredEntries.slice(0, 3) : [];
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Top 3 Podium */}
+      {top3.length >= 3 && (
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 items-end">
+          {[top3[1], top3[0], top3[2]].map((entry, visualIdx) => {
+            const rank = visualIdx === 0 ? 2 : visualIdx === 1 ? 1 : 3;
+            const isFirst = rank === 1;
+            const isMe = entry.id === currentUserId;
+            const medalColors = {
+              1: { bg: "from-accent/20 to-accent/5", border: "border-accent/50", text: "text-accent", glow: "shadow-[0_0_20px_rgba(0,229,209,0.2)]", medal: "🥇" },
+              2: { bg: "from-gray-300/10 to-gray-400/5", border: "border-gray-400/30", text: "text-gray-300", glow: "", medal: "🥈" },
+              3: { bg: "from-amber-600/10 to-amber-700/5", border: "border-amber-600/30", text: "text-amber-500", glow: "", medal: "🥉" },
+            }[rank]!;
+
+            return (
+              <div
+                key={entry.id}
+                className={`relative bg-gradient-to-b ${medalColors.bg} border ${medalColors.border} ${medalColors.glow} slc-cyber-clip p-4 sm:p-5 text-center transition-all ${isFirst ? "sm:-mt-4" : ""} ${isMe ? "ring-1 ring-accent/50" : ""} animate-fade-in-up stagger-${visualIdx + 1}`}
+              >
+                <span className="text-2xl sm:text-3xl block mb-2 animate-count-up">{medalColors.medal}</span>
+                {entry.avatar_url ? (
+                  <Image src={entry.avatar_url} alt="" width={48} height={48} className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto slc-cyber-clip border-2 ${medalColors.border}`} unoptimized />
+                ) : (
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto slc-cyber-clip bg-border ${medalColors.border} border-2`} />
+                )}
+                <p className="font-heading font-black text-xs sm:text-sm tracking-widest mt-2 truncate uppercase">
+                  {entry.display_name || entry.username || "Anon"}
+                </p>
+                {entry.username && <p className="text-[9px] text-text-secondary tracking-widest">@{entry.username}</p>}
+                <div className="mt-3 pt-2 border-t border-border/40">
+                  <span className={`font-heading font-black text-2xl sm:text-3xl ${medalColors.text} leading-none`}>{entry.correct_predictions}</span>
+                  <p className="text-[9px] text-text-secondary tracking-widest uppercase mt-1">{entry.accuracy}% precisión</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {/* Search Bar */}
       <div className="relative group">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">

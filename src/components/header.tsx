@@ -171,12 +171,12 @@ export function Header() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <nav className="md:hidden border-t border-border bg-bg-alt/95 backdrop-blur-xl px-4 py-4 space-y-2">
-          {NAV_LINKS.map((link) => (
+        <nav className="md:hidden border-t border-border bg-bg-alt/95 backdrop-blur-xl px-4 py-4 space-y-2 animate-fade-in">
+          {NAV_LINKS.map((link, i) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`block text-sm font-heading font-black tracking-widest px-4 py-3 slc-cyber-clip transition uppercase ${
+              className={`block text-sm font-heading font-black tracking-widest px-4 py-3 slc-cyber-clip transition uppercase animate-fade-in-up stagger-${i + 1} touch-bounce ${
                 pathname === link.href
                   ? "text-bg bg-accent shadow-[0_0_10px_rgba(209,242,0,0.3)]"
                   : "text-text-secondary hover:text-accent bg-card border border-border"
@@ -185,6 +185,30 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          {user && (
+            <div className="flex items-center justify-between bg-card border border-border slc-cyber-clip px-4 py-3 mt-3 animate-fade-in-up stagger-5">
+              <div className="flex items-center gap-3">
+                {(user.avatar_url && !avatarError) ? (
+                  <Image src={user.avatar_url} alt="" width={28} height={28} className="rounded-full border border-border" unoptimized onError={() => setAvatarError(true)} />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-border flex items-center justify-center text-[10px] font-black">
+                    {(user.display_name || user.username || "U")[0].toUpperCase()}
+                  </div>
+                )}
+                <span className="text-xs font-heading font-bold tracking-widest uppercase text-text">
+                  {user.display_name || user.username}
+                </span>
+              </div>
+              <button onClick={handleLogout} className="text-[10px] font-heading font-black tracking-widest uppercase text-r6-red hover:text-white transition">
+                Salir
+              </button>
+            </div>
+          )}
+          {user?.is_admin && (
+            <Link href="/admin" className="block text-center text-[10px] font-black tracking-widest bg-r6-red text-white px-4 py-2 slc-cyber-clip uppercase animate-fade-in-up stagger-6">
+              ADMIN PANEL
+            </Link>
+          )}
         </nav>
       )}
     </header>

@@ -17,7 +17,7 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-cyber-dots opacity-20 pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/5 blur-[120px] pointer-events-none" />
       
-      <div className="bg-card/90 backdrop-blur-md slc-cyber-clip border border-border p-10 max-w-md w-full text-center space-y-8 relative z-10">
+      <div className="bg-card/90 backdrop-blur-md slc-cyber-clip border border-border p-10 max-w-md w-full text-center space-y-8 relative z-10 animate-fade-in-up">
         <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-accent/40 m-2" />
         <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-r6-red/40 m-2" />
         
