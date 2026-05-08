@@ -125,8 +125,16 @@ export function Header() {
 
                 <div className="relative">
                   <div className="absolute inset-0 bg-accent/20 blur-md rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                  {user.avatar_url ? (
-                    <Image src={user.avatar_url} alt="" width={36} height={36} className="rounded-full border-2 border-border group-hover:border-accent transition-colors relative z-10" unoptimized />
+                  {(user.avatar_url && !avatarError) ? (
+                    <Image 
+                      src={user.avatar_url} 
+                      alt="" 
+                      width={36} 
+                      height={36} 
+                      className="rounded-full border-2 border-border group-hover:border-accent transition-colors relative z-10" 
+                      unoptimized 
+                      onError={() => setAvatarError(true)}
+                    />
                   ) : (
                     <div className="w-9 h-9 rounded-full border-2 border-border bg-card flex items-center justify-center text-[10px] font-black text-text relative z-10">
                       {(user.display_name || user.username || "U")[0].toUpperCase()}

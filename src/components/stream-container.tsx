@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type StreamChannel = {
   name: string;
@@ -32,6 +32,13 @@ const CHANNELS: StreamChannel[] = [
 
 export function StreamContainer() {
   const [activeChannel, setActiveChannel] = useState(CHANNELS[0]);
+  const [hostname, setHostname] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setHostname(window.location.hostname);
+    }
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -63,7 +70,7 @@ export function StreamContainer() {
         <div className="twitch-embed slc-cyber-clip border border-border shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-black aspect-video relative overflow-hidden group">
           <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-0" />
           <iframe
-            src={`https://player.twitch.tv/?channel=${activeChannel.twitch}&parent=localhost&parent=predicciones.tebimedia.com&muted=true`}
+            src={`https://player.twitch.tv/?channel=${activeChannel.twitch}&parent=${hostname || 'localhost'}&muted=true`}
             allowFullScreen
             className="absolute inset-0 w-full h-full z-10"
           />

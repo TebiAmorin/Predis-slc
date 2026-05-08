@@ -15,6 +15,7 @@ type Props = {
 
 export function SharePredictions({ matches, userPredictions, user }: Props) {
   const [generating, setGenerating] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const [mode, setMode] = useState<"picks" | "results">("picks");
   const ref = useRef<HTMLDivElement>(null);
 
@@ -104,15 +105,16 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                 <div className="flex items-center gap-8">
                   <div className="relative">
                     <div className="absolute inset-0 bg-accent/30 blur-xl rounded-full" />
-                    {user.user_metadata?.avatar_url ? (
+                    {(user.user_metadata?.avatar_url && !avatarError) ? (
                       <img 
                         src={user.user_metadata.avatar_url.replace("_normal", "_400x400")} 
                         alt="Avatar" 
+                        onError={() => setAvatarError(true)}
                         className="w-28 h-28 rounded-full border-4 border-accent relative z-10 object-cover shadow-[0_0_25px_rgba(209,242,0,0.4)]" 
                       />
                     ) : (
                       <div className="w-28 h-28 rounded-full border-4 border-accent bg-card flex items-center justify-center text-4xl text-accent font-black relative z-10 uppercase">
-                        {(user.user_metadata?.preferred_username || "U")[0]}
+                        {(user.user_metadata?.preferred_username || user.email || "U")[0]}
                       </div>
                     )}
                   </div>
