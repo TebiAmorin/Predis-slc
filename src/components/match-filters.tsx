@@ -8,34 +8,24 @@ type Props = {
   matches: (Match & { team_a: Team; team_b: Team })[];
   userPredictions: Record<string, string>;
   userId: string | null;
+  matchStats?: Record<string, { a: number; b: number }>;
 };
 
-export function MatchFilters({ matches, userPredictions, userId }: Props) {
+export function MatchFilters({ matches, userPredictions, userId, matchStats }: Props) {
   const [stageFilter, setStageFilter] = useState<string>("all");
-  const [dayFilter, setDayFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const stages = useMemo(() => Array.from(new Set(matches.map(m => m.stage))), [matches]);
 
-  const days = useMemo(() => {
-    const d = new Map<string, string>();
-    matches.forEach(m => {
-      const date = new Date(m.match_date);
-      const key = date.toISOString().split("T")[0];
-      const label = date.toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" });
-      d.set(key, label);
-    });
-    return Array.from(d.entries());
-  }, [matches]);
+
 
   const filtered = useMemo(() => {
     return matches.filter(m => {
       if (stageFilter !== "all" && m.stage !== stageFilter) return false;
-      if (dayFilter !== "all" && new Date(m.match_date).toISOString().split("T")[0] !== dayFilter) return false;
       if (statusFilter !== "all" && m.status !== statusFilter) return false;
       return true;
     });
-  }, [matches, stageFilter, dayFilter, statusFilter]);
+  }, [matches, stageFilter, statusFilter]);
 
   const grouped = useMemo(() => {
     const g: Record<string, typeof filtered> = {};
@@ -121,30 +111,6 @@ export function MatchFilters({ matches, userPredictions, userId }: Props) {
             ))}
           </div>
 
-          {/* Day filters */}
-          {days.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
-              <button
-                onClick={() => setDayFilter("all")}
-                className={`shrink-0 text-xs font-heading font-bold px-4 py-2 rounded-lg tracking-wider transition cursor-pointer ${
-                  dayFilter === "all" ? "bg-card-hover border border-border-light text-text" : "bg-transparent border border-transparent text-text-secondary hover:bg-card/50"
-                }`}
-              >
-                TODOS LOS DÍAS
-              </button>
-              {days.map(([key, label]) => (
-                <button
-                  key={key}
-                  onClick={() => setDayFilter(key)}
-                  className={`shrink-0 text-xs font-heading font-bold px-4 py-2 rounded-lg tracking-wider transition cursor-pointer ${
-                    dayFilter === key ? "bg-card-hover border border-border-light text-text" : "bg-transparent border border-transparent text-text-secondary hover:bg-card/50"
-                  }`}
-                >
-                  {label.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -154,7 +120,7 @@ export function MatchFilters({ matches, userPredictions, userId }: Props) {
           <p className="text-3xl mb-3">🔍</p>
           <p className="text-muted font-heading tracking-wider">No hay partidos con estos filtros</p>
           <button
-            onClick={() => { setStageFilter("all"); setDayFilter("all"); setStatusFilter("all"); }}
+            onClick={() => { setStageFilter("all"); setStatusFilter("all"); }}
             className="text-accent text-xs mt-2 hover:text-accent-hover cursor-pointer"
           >
             Limpiar filtros
@@ -176,6 +142,7 @@ export function MatchFilters({ matches, userPredictions, userId }: Props) {
                 match={match}
                 userPrediction={userPredictions[match.id] || null}
                 userId={userId}
+                matchStats={matchStats?.[match.id]}
               />
             ))}
           </div>

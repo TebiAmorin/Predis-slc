@@ -132,7 +132,7 @@ export default async function Home() {
         </div>
 
         {displayMatches && displayMatches.length > 0 ? (
-          <MatchesGrid matches={displayMatches} userPredictions={userPredictions} userId={session?.user?.id || null} />
+          <MatchesGrid matches={displayMatches} userPredictions={userPredictions} userId={session?.user?.id || null} readonlyRedirect="/predicciones" />
         ) : (
           <div className="text-center py-14 bg-card border border-border rounded-2xl">
             <p className="text-3xl mb-3">📅</p>

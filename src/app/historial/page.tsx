@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { HistoryList } from "@/components/history-list";
 
 export const dynamic = "force-dynamic";
 
@@ -76,82 +76,18 @@ export default async function HistorialPage() {
         </div>
       </div>
 
-      {/* List */}
-      <div className="space-y-3">
-        {(!predictions || predictions.length === 0) && (
+      {/* Lista Compacta Interactiva */}
+      <div className="pt-2">
+        {predictions && predictions.length > 0 ? (
+          <HistoryList predictions={predictions as any} />
+        ) : (
           <div className="text-center py-14 bg-bg-alt/50 slc-cyber-clip border border-border">
             <p className="text-text-secondary font-heading tracking-widest uppercase font-bold text-sm">No has hecho predicciones aún</p>
-            <Link href="/predicciones" className="text-accent text-xs font-bold font-heading tracking-widest uppercase mt-3 inline-block hover:text-accent-hover transition">
+            <a href="/predicciones" className="text-accent text-xs font-bold font-heading tracking-widest uppercase mt-3 inline-block hover:text-accent-hover transition">
               Hacer predicciones →
-            </Link>
+            </a>
           </div>
         )}
-
-        {predictions?.map((pred) => {
-          const match = pred.match;
-          if (!match) return null;
-          const isCompleted = match.status === "completed";
-          const isCorrect = isCompleted && pred.predicted_team_id === match.winner_id;
-          const matchDate = new Date(match.match_date);
-
-          return (
-            <div
-              key={pred.id}
-              className={`bg-card border slc-cyber-clip p-5 flex items-center gap-5 transition-colors hover:bg-card-hover relative overflow-hidden ${
-                isCompleted
-                  ? isCorrect ? "border-success/30 bg-success/5" : "border-r6-red/30 bg-r6-red/5"
-                  : "border-border"
-              }`}
-            >
-              {isCompleted && (
-                <div className={`absolute left-0 top-0 w-1 h-full ${isCorrect ? "bg-success" : "bg-r6-red"}`} />
-              )}
-              {/* Status icon */}
-              <div className={`w-10 h-10 slc-cyber-clip flex items-center justify-center shrink-0 text-lg font-black ${
-                isCompleted
-                  ? isCorrect ? "bg-success/20 text-success drop-shadow-[0_0_5px_rgba(0,255,136,0.5)]" : "bg-r6-red/20 text-r6-red drop-shadow-[0_0_5px_rgba(255,0,60,0.5)]"
-                  : "bg-accent/20 text-accent"
-              }`}>
-                {isCompleted ? (isCorrect ? "✓" : "✗") : "?"}
-              </div>
-
-              {/* Match info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3">
-                  <span className="font-heading font-black tracking-widest uppercase text-base text-text">
-                    {match.team_a.short_name} <span className="text-text-secondary opacity-50 text-xs mx-1">VS</span> {match.team_b.short_name}
-                  </span>
-                  <span className="text-[10px] bg-bg border border-border text-text-secondary px-2 py-0.5 font-heading font-bold tracking-widest uppercase">
-                    BO{match.best_of}
-                  </span>
-                </div>
-                <p className="text-[10px] text-text-secondary mt-1 font-heading font-bold tracking-widest uppercase">
-                  {match.stage} <span className="text-border-light mx-1">/</span> {matchDate.toLocaleDateString("es-ES", { day: "numeric", month: "short" })}
-                </p>
-              </div>
-
-              {/* Prediction */}
-              <div className="text-right shrink-0">
-                <p className="text-[9px] text-text-secondary tracking-widest uppercase font-bold">TU PREDICCIÓN</p>
-                <p className={`font-heading font-black text-lg tracking-widest uppercase ${
-                  isCompleted ? (isCorrect ? "text-success drop-shadow-[0_0_5px_rgba(0,255,136,0.3)]" : "text-r6-red drop-shadow-[0_0_5px_rgba(255,0,60,0.3)]") : "text-accent drop-shadow-[0_0_5px_rgba(209,242,0,0.3)]"
-                }`}>
-                  {pred.predicted_team?.short_name || "—"}
-                </p>
-              </div>
-
-              {/* Score if completed */}
-              {isCompleted && match.score_a !== null && (
-                <div className="text-right shrink-0 border-l border-border/50 pl-5 ml-2 hidden sm:block">
-                  <p className="text-[9px] text-text-secondary tracking-widest uppercase font-bold">RESULTADO</p>
-                  <p className="font-heading font-black text-xl text-text tracking-widest">
-                    {match.score_a} - {match.score_b}
-                  </p>
-                </div>
-              )}
-            </div>
-          );
-        })}
       </div>
     </div>
   );

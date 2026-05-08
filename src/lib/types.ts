@@ -4,6 +4,7 @@ export type Team = {
   short_name: string;
   logo_url: string | null;
   group_name: string | null;
+  eliminated?: boolean;
 };
 
 export type Match = {

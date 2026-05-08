@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { MatchFilters } from "@/components/match-filters";
+import { SharePredictions } from "@/components/share-predictions";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,15 @@ export default async function PrediccionesPage() {
     }
   }
 
+  // Fetch real pick statistics (requires RPC "get_match_stats")
+  const { data: statsData, error: statsError } = await supabase.rpc("get_match_stats");
+  const matchStats: Record<string, {a: number, b: number}> = {};
+  if (!statsError && statsData) {
+    statsData.forEach((s: any) => {
+      matchStats[s.match_id] = { a: Number(s.team_a_picks), b: Number(s.team_b_picks) };
+    });
+  }
+
   const shareText = "🎯 Estoy haciendo mis predicciones para el BLAST R6 Major Salt Lake City 2026!\n\n¿Puedes superarme? Haz las tuyas 👇\nhttps://predicciones.tebimedia.com\n\n@TebiiR6 #R6Major #BLASTR6";
 
   return (
@@ -45,7 +55,7 @@ export default async function PrediccionesPage() {
               <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
-              COMPARTIR
+              COMPARTIR LINK
             </a>
           )}
           {!session && (
@@ -63,7 +73,12 @@ export default async function PrediccionesPage() {
         matches={matches || []}
         userPredictions={userPredictions}
         userId={session?.user?.id || null}
+        matchStats={Object.keys(matchStats).length > 0 ? matchStats : undefined}
       />
+
+      {session && (
+        <SharePredictions matches={matches || []} userPredictions={userPredictions} user={session.user} />
+      )}
     </div>
   );
 }

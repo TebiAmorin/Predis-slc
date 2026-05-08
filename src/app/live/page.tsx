@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import type { Match, Team } from "@/lib/types";
+import { StreamContainer } from "@/components/stream-container";
 
 export const dynamic = "force-dynamic";
 
@@ -33,109 +34,175 @@ export default async function LivePage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
-        {/* Stream */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 bg-bg-alt/50 p-2 slc-cyber-clip border-l-4 border-r6-red">
-            <div className="w-2 h-2 bg-r6-red rounded-full animate-pulse shadow-[0_0_8px_rgba(255,0,60,0.8)]" />
-            <h1 className="font-heading font-black text-2xl tracking-widest text-text">LIVE STREAM</h1>
-          </div>
-          <div className="twitch-embed slc-cyber-clip border border-border shadow-[0_0_30px_rgba(209,242,0,0.05)] bg-bg-alt">
-            <iframe
-              src="https://player.twitch.tv/?channel=tebi10&parent=localhost&parent=predicciones.tebimedia.com&muted=true"
-              allowFullScreen
-            />
-          </div>
-          <div className="bg-card/80 backdrop-blur-md slc-cyber-clip border border-border p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <p className="font-heading font-black tracking-widest text-lg text-accent drop-shadow-[0_0_5px_rgba(209,242,0,0.3)]">TEBI10</p>
-              <p className="text-xs text-text-secondary mt-1">Stream de los partidos del BLAST R6 Major SLC 2026</p>
-            </div>
+    <div className="relative min-h-[calc(100vh-80px)]">
+      {/* Background Decor */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-accent/5 blur-[180px] rounded-full -translate-y-1/2 translate-x-1/2 opacity-50" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-r6-red/5 blur-[150px] rounded-full translate-y-1/2 -translate-x-1/2 opacity-30" />
+        <div className="absolute inset-0 bg-cyber-grid opacity-[0.03]" />
+      </div>
+
+      <div className="relative z-10 space-y-10">
+        {/* Page Title Section */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-border/40">
+          <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <a
-                href="https://twitch.tv/tebi10"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#9146FF] hover:bg-[#7c3aed] text-white font-heading font-black text-xs px-5 py-2 slc-cyber-clip tracking-widest uppercase transition shadow-[0_0_10px_rgba(145,70,255,0.4)]"
-              >
-                Twitch
-              </a>
-              <a
-                href="https://x.com/TebiiR6"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-bg-alt border border-border hover:border-accent hover:text-accent text-text font-heading font-black text-xs px-5 py-2 slc-cyber-clip tracking-widest uppercase transition"
-              >
-                @TebiiR6
-              </a>
+              <div className="w-12 h-1 bg-r6-red" />
+              <span className="text-xs font-heading font-black tracking-[0.4em] text-r6-red uppercase italic">Live Broadcast</span>
+            </div>
+            <h1 className="font-heading font-black text-5xl md:text-6xl tracking-tighter text-text italic">
+              STREAMS <span className="text-accent drop-shadow-[0_0_15px_rgba(209,242,0,0.3)]">EN VIVO</span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-6 px-6 py-3 bg-bg-alt/50 backdrop-blur-md slc-cyber-clip border border-border/50">
+            <div className="flex -space-x-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-8 h-8 rounded-full border-2 border-bg-alt bg-card overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-accent/20 to-r6-red/20 flex items-center justify-center text-[10px] font-black italic">
+                    {i === 1 ? 'V' : i === 2 ? 'T' : '+'}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div>
+              <p className="text-[10px] text-text-secondary font-black tracking-widest uppercase">Operadores Online</p>
+              <p className="text-sm font-heading font-black text-text tracking-widest uppercase italic">Comunidad SLC 🎯</p>
             </div>
           </div>
         </div>
 
-        {/* Sidebar - today matches + prize */}
-        <div className="space-y-4">
-          {/* Prize */}
-          <div className="bg-card/80 slc-cyber-clip border-l-4 border-l-accent p-5 text-center relative overflow-hidden group">
-            <div className="absolute inset-0 bg-accent/5 group-hover:bg-accent/10 transition-colors" />
-            <div className="absolute right-0 top-0 w-16 h-full bg-accent/10 -skew-x-12 translate-x-4" />
-            <p className="text-3xl mb-3 relative z-10 drop-shadow-[0_0_10px_rgba(209,242,0,0.5)]">🏆</p>
-            <h3 className="font-heading font-black text-sm tracking-widest text-accent relative z-10">PREMIO AL #1</h3>
-            <p className="text-[11px] text-text-secondary mt-2 relative z-10">
-              El ganador del leaderboard se lleva un regalo exclusivo del Major SLC
-            </p>
-            {!session && (
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">
+          {/* Main Content - Stream */}
+          <div className="space-y-8">
+            <StreamContainer />
+            
+            {/* Community Shoutout */}
+            <div className="bg-gradient-to-br from-bg-alt/60 to-bg-alt/20 backdrop-blur-md slc-cyber-clip border border-border/40 p-8 flex flex-col md:flex-row items-center gap-8 shadow-2xl">
+              <div className="w-20 h-20 shrink-0 bg-accent/10 rounded-full flex items-center justify-center border-2 border-accent/20">
+                <svg viewBox="0 0 24 24" className="w-10 h-10 fill-accent drop-shadow-[0_0_8px_rgba(209,242,0,0.5)]"><path d="M12 11.55C9.64 9.35 6.48 8 3 8v11c3.48 0 6.64 1.35 9 3.55 2.36-2.2 5.52-3.55 9-3.55V8c-3.48 0-6.64 1.35-9 3.55zM12 8c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z"/></svg>
+              </div>
+              <div className="text-center md:text-left space-y-2">
+                <h4 className="font-heading font-black text-xl tracking-widest text-text uppercase italic">Apoya a la comunidad</h4>
+                <p className="text-sm text-text-secondary max-w-xl">
+                  Estamos retransmitiendo todos los partidos del Major SLC. No olvides seguir a los canales para apoyar el contenido de R6 en español.
+                </p>
+              </div>
+              <div className="md:ml-auto">
+                <a href="https://twitch.tv/tebi10" target="_blank" rel="noopener noreferrer" className="inline-block bg-white text-bg font-heading font-black text-xs px-8 py-3 slc-cyber-clip tracking-widest uppercase transition hover:bg-accent hover:-translate-y-1 shadow-lg">
+                  Subscribirse
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8">
+            {/* Donation Card */}
+            <a 
+              href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=estebangarciaamorin1@gmail.com&currency_code=EUR" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="group relative block bg-gradient-to-br from-[#003087]/30 to-[#0070ba]/10 backdrop-blur-2xl slc-cyber-clip border border-[#0070ba]/30 p-8 overflow-hidden transition-all duration-700 hover:shadow-[0_0_50px_rgba(0,112,186,0.3)] hover:-translate-y-1.5 active:translate-y-0"
+            >
+              <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-20 group-hover:scale-110 transition-all duration-700">
+                <svg viewBox="0 0 24 24" className="w-24 h-24 fill-[#0070ba]"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
+              </div>
+              <div className="relative z-10 flex flex-col gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-[#0070ba]/20 rounded-2xl flex items-center justify-center border border-[#0070ba]/40 shadow-inner">
+                    <svg viewBox="0 0 24 24" className="w-8 h-8 fill-[#0070ba] drop-shadow-[0_0_8px_rgba(0,112,186,0.5)]"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                  </div>
+                  <div>
+                    <h4 className="font-heading font-black text-lg tracking-[0.1em] text-white uppercase italic leading-none">Donar al Stream</h4>
+                    <p className="text-[10px] text-[#0070ba] font-black uppercase tracking-[0.3em] mt-2 bg-white/5 inline-block px-2 py-0.5 rounded">PAYPAL SECURE</p>
+                  </div>
+                </div>
+                <p className="text-[11px] text-text-secondary font-medium leading-relaxed uppercase opacity-60">Tu apoyo nos ayuda a seguir trayendo el mejor contenido de R6</p>
+                <div className="flex items-center gap-2 text-[#0070ba] font-black text-xs uppercase tracking-widest mt-2 group-hover:translate-x-2 transition-transform">
+                  Hacer donación <span>→</span>
+                </div>
+              </div>
+            </a>
+
+            {/* Prize Card - More Premium */}
+            <div className="bg-gradient-to-b from-accent/20 to-accent/5 backdrop-blur-xl slc-cyber-clip border border-accent/30 p-8 text-center relative overflow-hidden group shadow-[0_0_40px_rgba(209,242,0,0.1)]">
+              <div className="absolute inset-0 bg-[url('/cyber_pattern.png')] opacity-10 mix-blend-overlay" />
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/20 blur-3xl rounded-full" />
+              <div className="relative z-10">
+                <div className="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-accent/20 shadow-[0_0_20px_rgba(209,242,0,0.2)]">
+                  <span className="text-5xl drop-shadow-[0_0_15px_rgba(209,242,0,0.6)] animate-bounce">🏆</span>
+                </div>
+                <h3 className="font-heading font-black text-xl tracking-[0.2em] text-accent uppercase italic mb-3">GRAND PRIZE</h3>
+                <p className="text-xs text-text-secondary font-bold leading-relaxed uppercase opacity-80 mb-6">
+                  El Operador #1 del leaderboard global recibirá un pack exclusivo del BLAST Major SLC 2026.
+                </p>
+                {!session && (
+                  <Link
+                    href="/login"
+                    className="w-full inline-block bg-accent hover:bg-accent-hover text-bg font-heading font-black text-sm py-4 slc-cyber-clip tracking-[0.2em] uppercase transition relative z-10 shadow-xl hover:-translate-y-1 active:translate-y-0"
+                  >
+                    Login con 𝕏
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* Today's matches */}
+            <div className="space-y-6">
+              <div className="flex items-center justify-between border-b border-border/40 pb-4">
+                <h2 className="font-heading font-black text-sm tracking-[0.3em] text-text-secondary flex items-center gap-3 uppercase italic">
+                  <span className="w-2 h-2 bg-r6-red" />
+                  {todayMatches && todayMatches.length > 0 ? "Daily Schedule" : "Upcoming"}
+                </h2>
+                <span className="text-[10px] font-black text-accent tracking-widest uppercase opacity-60">SLC 2026</span>
+              </div>
+              
+              {todayMatches && todayMatches.length > 0 ? (
+                <div className="space-y-4">
+                  {todayMatches.map(match => (
+                    <SidebarMatch key={match.id} match={match} prediction={userPredictions[match.id]} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-bg-alt/30 slc-cyber-clip border border-border/40 p-10 text-center space-y-4">
+                  <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 fill-text-secondary opacity-30"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                  </div>
+                  <p className="text-[10px] text-text-secondary font-black tracking-widest uppercase">No hay partidos programados hoy</p>
+                  <Link href="/predicciones" className="text-[10px] font-heading font-black tracking-[0.3em] text-accent hover:text-white transition-colors uppercase italic border-b border-accent/30 pb-1">
+                    Ver Calendario →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Links Group */}
+            <div className="grid grid-cols-1 gap-4">
               <Link
-                href="/login"
-                className="mt-4 inline-block bg-r6-red hover:bg-r6-red/80 text-white font-heading font-black text-xs px-6 py-2 slc-cyber-clip tracking-widest uppercase transition relative z-10 shadow-[0_0_10px_rgba(255,0,60,0.3)] hover:-translate-y-0.5"
+                href="/predicciones"
+                className="group relative p-6 bg-bg-alt/40 border border-border/40 slc-cyber-clip hover:border-accent/40 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
               >
-                Login con 𝕏
+                <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <p className="font-heading font-black text-sm tracking-[0.2em] text-text group-hover:text-accent transition uppercase flex items-center justify-between italic">
+                    Predicciones <span className="text-accent group-hover:translate-x-2 transition-transform">→</span>
+                  </p>
+                  <p className="text-[10px] text-text-secondary mt-2 font-bold uppercase tracking-tighter opacity-60">Predice y escala en el ranking</p>
+                </div>
               </Link>
-            )}
-          </div>
-
-          {/* Today's matches */}
-          <div>
-            <h2 className="font-heading font-black text-sm tracking-widest mb-4 text-text-secondary border-b border-border/50 pb-2 flex items-center gap-2">
-              <span className="w-1.5 h-4 bg-accent block skew-x-[-15deg]"></span>
-              {todayMatches && todayMatches.length > 0 ? "PARTIDOS DE HOY" : "PRÓXIMOS PARTIDOS"}
-            </h2>
-            {todayMatches && todayMatches.length > 0 ? (
-              <div className="space-y-3">
-                {todayMatches.map(match => (
-                  <SidebarMatch key={match.id} match={match} prediction={userPredictions[match.id]} />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-bg-alt/50 slc-cyber-clip border border-border p-6 text-center">
-                <p className="text-xs text-text-secondary font-medium">No hay partidos hoy</p>
-                <Link href="/predicciones" className="text-xs font-heading font-bold tracking-widest text-accent hover:text-accent-hover mt-3 inline-block uppercase">
-                  Ver calendario →
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {/* Quick links */}
-          <div className="space-y-3">
-            <Link
-              href="/predicciones"
-              className="block bg-card slc-cyber-clip border border-border p-4 hover:border-accent/50 hover:bg-card-hover transition group"
-            >
-              <p className="font-heading font-black text-xs tracking-widest text-text group-hover:text-accent transition uppercase flex items-center justify-between">
-                Hacer predicciones <span className="text-accent group-hover:translate-x-1 transition-transform">→</span>
-              </p>
-              <p className="text-[10px] text-text-secondary mt-1">Predice ganadores y gana puntos</p>
-            </Link>
-            <Link
-              href="/leaderboard"
-              className="block bg-card slc-cyber-clip border border-border p-4 hover:border-accent/50 hover:bg-card-hover transition group"
-            >
-              <p className="font-heading font-black text-xs tracking-widest text-text group-hover:text-accent transition uppercase flex items-center justify-between">
-                Ver leaderboard <span className="text-accent group-hover:translate-x-1 transition-transform">→</span>
-              </p>
-              <p className="text-[10px] text-text-secondary mt-1">Ranking de aciertos</p>
-            </Link>
+              <Link
+                href="/leaderboard"
+                className="group relative p-6 bg-bg-alt/40 border border-border/40 slc-cyber-clip hover:border-accent/40 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <p className="font-heading font-black text-sm tracking-[0.2em] text-text group-hover:text-accent transition uppercase flex items-center justify-between italic">
+                    Leaderboard <span className="text-accent group-hover:translate-x-2 transition-transform">→</span>
+                  </p>
+                  <p className="text-[10px] text-text-secondary mt-2 font-bold uppercase tracking-tighter opacity-60">Ranking de los mejores operadores</p>
+                </div>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -145,30 +212,44 @@ export default async function LivePage() {
 
 function SidebarMatch({ match, prediction }: { match: Match & { team_a: Team; team_b: Team }; prediction?: string }) {
   const time = new Date(match.match_date).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+  const isLive = match.status === "live";
+  
   return (
-    <div className="bg-card slc-cyber-clip border border-border p-3 hover:bg-card-hover transition-colors relative overflow-hidden">
-      {match.status === "live" && (
-        <div className="absolute top-0 left-0 w-1 h-full bg-r6-red animate-pulse" />
+    <div className={`bg-card/40 backdrop-blur-md slc-cyber-clip border p-5 transition-all duration-500 relative overflow-hidden group ${isLive ? 'border-r6-red/50 shadow-[0_0_20px_rgba(255,0,60,0.1)]' : 'border-border/50 hover:border-border hover:bg-card/60'}`}>
+      {isLive && (
+        <div className="absolute top-0 left-0 w-1.5 h-full bg-r6-red animate-pulse" />
       )}
-      <div className="flex items-center justify-between mb-3 border-b border-border/50 pb-2">
-        <span className="text-[9px] text-text-secondary font-heading font-bold tracking-widest uppercase">{match.stage}</span>
-        <div className="flex items-center gap-2">
-          <span className="text-[9px] bg-bg-alt border border-border text-text-secondary px-1.5 py-0.5 font-heading font-bold tracking-widest uppercase">BO{match.best_of}</span>
-          {match.status === "live" && (
-            <span className="text-[9px] bg-r6-red/20 text-r6-red border border-r6-red/50 px-1.5 py-0.5 font-black tracking-widest uppercase animate-pulse">LIVE</span>
+      
+      <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+        <span className="text-[10px] text-text-secondary font-black tracking-widest uppercase italic opacity-70">{match.stage}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-black text-text-secondary tracking-widest uppercase">BO{match.best_of}</span>
+          {isLive ? (
+            <div className="flex items-center gap-2 bg-r6-red/20 px-2 py-0.5 rounded border border-r6-red/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-r6-red animate-pulse" />
+              <span className="text-[10px] text-r6-red font-black tracking-widest uppercase">LIVE</span>
+            </div>
+          ) : (
+            <span className="text-[10px] text-text-secondary font-black tracking-widest opacity-40 uppercase">{time}</span>
           )}
-          <span className="text-[10px] text-text-secondary font-medium">{time}</span>
         </div>
       </div>
-      <div className="flex items-center justify-between px-1">
-        <div className={`flex items-center gap-2 ${prediction === match.team_a_id ? "text-accent drop-shadow-[0_0_5px_rgba(209,242,0,0.5)]" : "text-text"}`}>
-          {prediction === match.team_a_id && <span className="text-[10px]">►</span>}
-          <span className="font-heading font-black text-sm tracking-wider uppercase">{match.team_a.short_name}</span>
+
+      <div className="flex items-center justify-between">
+        <div className={`flex flex-col items-center gap-2 group-hover:scale-105 transition-transform duration-500 ${prediction === match.team_a_id ? "text-accent" : "text-text"}`}>
+          <img src={match.team_a.logo_url || ""} className={`w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] ${prediction === match.team_a_id ? "drop-shadow-[0_0_12px_rgba(209,242,0,0.3)]" : ""}`} alt="" />
+          <span className="font-heading font-black text-xs tracking-[0.2em] uppercase italic">{match.team_a.short_name}</span>
+          {prediction === match.team_a_id && <div className="w-4 h-1 bg-accent rounded-full shadow-[0_0_8px_rgba(209,242,0,0.5)]" />}
         </div>
-        <span className="text-text-secondary opacity-50 font-heading font-black text-[10px] mx-2">VS</span>
-        <div className={`flex items-center gap-2 ${prediction === match.team_b_id ? "text-accent drop-shadow-[0_0_5px_rgba(209,242,0,0.5)]" : "text-text"}`}>
-          <span className="font-heading font-black text-sm tracking-wider uppercase">{match.team_b.short_name}</span>
-          {prediction === match.team_b_id && <span className="text-[10px]">◄</span>}
+
+        <div className="flex flex-col items-center gap-1 opacity-20 group-hover:opacity-40 transition-opacity">
+          <span className="text-[10px] font-black uppercase italic tracking-tighter">VS</span>
+        </div>
+
+        <div className={`flex flex-col items-center gap-2 group-hover:scale-105 transition-transform duration-500 ${prediction === match.team_b_id ? "text-accent" : "text-text"}`}>
+          <img src={match.team_b.logo_url || ""} className={`w-10 h-10 object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.1)] ${prediction === match.team_b_id ? "drop-shadow-[0_0_12px_rgba(209,242,0,0.3)]" : ""}`} alt="" />
+          <span className="font-heading font-black text-xs tracking-[0.2em] uppercase italic">{match.team_b.short_name}</span>
+          {prediction === match.team_b_id && <div className="w-4 h-1 bg-accent rounded-full shadow-[0_0_8px_rgba(209,242,0,0.5)]" />}
         </div>
       </div>
     </div>
