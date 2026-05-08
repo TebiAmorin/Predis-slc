@@ -3,6 +3,7 @@ import { Rajdhani, Inter } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/header";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "sonner";
 
 const rajdhani = Rajdhani({
@@ -69,6 +70,7 @@ export default function RootLayout({
         </footer>
         <Toaster position="top-center" theme="dark" toastOptions={{ className: 'font-heading font-bold tracking-widest uppercase' }} />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
