@@ -11,8 +11,29 @@ type HistoryListProps = {
   })[];
 };
 
+const ROUND_GROUPS = [
+  { id: "all", label: "Todos" },
+  { id: "p1-d1", label: "Fase 1 Día 1", stages: ["Phase 1 - Upper Bracket", "Phase 1 - UB Final"] },
+  { id: "p1-d2", label: "Fase 1 Día 2", stages: ["Phase 1 - Lower Bracket", "Phase 1 - LB Final"] },
+  { id: "swiss-1", label: "Swiss R1", stages: ["Phase 2 - Swiss Round 1"] },
+  { id: "swiss-2", label: "Swiss R2", stages: ["Phase 2 - Swiss Round 2"] },
+  { id: "swiss-3", label: "Swiss R3", stages: ["Phase 2 - Swiss Round 3"] },
+  { id: "swiss-4", label: "Swiss R4", stages: ["Phase 2 - Swiss Round 4"] },
+  { id: "swiss-5", label: "Swiss R5", stages: ["Phase 2 - Swiss Round 5"] },
+  { id: "playoffs-qf", label: "Cuartos", stages: ["Playoffs - Quarterfinal"] },
+  { id: "playoffs-sf", label: "Semis", stages: ["Playoffs - Semifinal"] },
+  { id: "playoffs-gf", label: "Final", stages: ["Playoffs - Grand Final"] },
+];
+
 export function HistoryList({ predictions }: HistoryListProps) {
   const [filter, setFilter] = useState<"all" | "correct" | "wrong" | "pending">("all");
+  const [roundFilter, setRoundFilter] = useState("all");
+
+  // Which round groups actually have predictions
+  const activeRounds = useMemo(() => {
+    const stagesWithPreds = new Set(predictions.map(p => p.match.stage));
+    return ROUND_GROUPS.filter(g => g.id === "all" || g.stages?.some(s => stagesWithPreds.has(s)));
+  }, [predictions]);
 
   const filtered = useMemo(() => {
     return predictions.filter((pred) => {
@@ -20,46 +41,76 @@ export function HistoryList({ predictions }: HistoryListProps) {
       const isCompleted = match.status === "completed";
       const isCorrect = isCompleted && pred.predicted_team_id === match.winner_id;
       const isWrong = isCompleted && pred.predicted_team_id !== match.winner_id;
-      
-      if (filter === "correct") return isCorrect;
-      if (filter === "wrong") return isWrong;
-      if (filter === "pending") return !isCompleted;
+
+      if (filter === "correct" && !isCorrect) return false;
+      if (filter === "wrong" && !isWrong) return false;
+      if (filter === "pending" && isCompleted) return false;
+
+      if (roundFilter !== "all") {
+        const group = ROUND_GROUPS.find(g => g.id === roundFilter);
+        if (group?.stages && !group.stages.includes(match.stage)) return false;
+      }
+
       return true;
     });
-  }, [predictions, filter]);
+  }, [predictions, filter, roundFilter]);
+
+  const counts = useMemo(() => ({
+    all: predictions.length,
+    correct: predictions.filter(p => p.match.status === "completed" && p.predicted_team_id === p.match.winner_id).length,
+    wrong: predictions.filter(p => p.match.status === "completed" && p.predicted_team_id !== p.match.winner_id).length,
+    pending: predictions.filter(p => p.match.status !== "completed").length,
+  }), [predictions]);
 
   return (
-    <div className="space-y-4">
-      {/* Filtros */}
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {[
-          { id: "all", label: "TODOS", count: predictions.length },
-          { id: "correct", label: "ACIERTOS", count: predictions.filter(p => p.match.status === "completed" && p.predicted_team_id === p.match.winner_id).length },
-          { id: "wrong", label: "FALLOS", count: predictions.filter(p => p.match.status === "completed" && p.predicted_team_id !== p.match.winner_id).length },
-          { id: "pending", label: "PENDIENTES", count: predictions.filter(p => p.match.status !== "completed").length },
-        ].map((f) => (
+    <div className="space-y-3">
+      {/* Round filter */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        {activeRounds.map((g) => (
           <button
-            key={f.id}
-            onClick={() => setFilter(f.id as "all" | "correct" | "wrong" | "pending")}
-            className={`shrink-0 flex items-center gap-2 px-4 py-2 text-[10px] font-heading font-black tracking-widest uppercase transition-colors border slc-cyber-clip ${
-              filter === f.id 
-                ? "bg-accent border-accent text-bg" 
-                : "bg-bg-alt border-border text-text-secondary hover:text-text hover:border-border-light"
+            key={g.id}
+            onClick={() => setRoundFilter(g.id)}
+            className={`shrink-0 px-3 py-1.5 text-[10px] font-heading font-bold tracking-widest uppercase transition-all border rounded-sm ${
+              roundFilter === g.id
+                ? "bg-accent/15 border-accent/50 text-accent"
+                : "bg-transparent border-border/50 text-text-secondary hover:text-text hover:border-border"
             }`}
           >
-            {f.label} <span className={`px-1.5 py-0.5 rounded-sm ${filter === f.id ? "bg-bg/20" : "bg-card text-muted"}`}>{f.count}</span>
+            {g.label}
           </button>
         ))}
       </div>
 
-      {/* Lista compacta */}
+      {/* Status filter */}
+      <div className="flex gap-1.5 overflow-x-auto pb-1">
+        {([
+          { id: "all", label: "Todos", count: counts.all },
+          { id: "correct", label: "✓ Aciertos", count: counts.correct },
+          { id: "wrong", label: "✗ Fallos", count: counts.wrong },
+          { id: "pending", label: "Pendientes", count: counts.pending },
+        ] as const).map((f) => (
+          <button
+            key={f.id}
+            onClick={() => setFilter(f.id)}
+            className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-heading font-black tracking-widest uppercase transition-colors border slc-cyber-clip ${
+              filter === f.id
+                ? "bg-accent border-accent text-bg"
+                : "bg-bg-alt border-border text-text-secondary hover:text-text hover:border-border-light"
+            }`}
+          >
+            {f.label} <span className={`text-[9px] px-1 py-0.5 rounded-sm ${filter === f.id ? "bg-bg/20" : "bg-card text-muted"}`}>{f.count}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Compact list */}
       <div className="bg-card border border-border slc-cyber-clip overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="text-center py-10 text-text-secondary font-heading tracking-widest text-sm">
+          <div className="text-center py-8 text-text-secondary font-heading tracking-widest text-xs">
             NO HAY PARTIDOS EN ESTA CATEGORÍA
           </div>
         ) : (
-          <div className="divide-y divide-border/50">
+          <div className="divide-y divide-border/30">
             {filtered.map((pred) => {
               const match = pred.match;
               const isCompleted = match.status === "completed";
@@ -69,76 +120,70 @@ export function HistoryList({ predictions }: HistoryListProps) {
 
               const teamA_won = isCompleted && match.winner_id === match.team_a_id;
               const teamB_won = isCompleted && match.winner_id === match.team_b_id;
+              const pickedA = pred.predicted_team_id === match.team_a_id;
+              const pickedB = pred.predicted_team_id === match.team_b_id;
 
               return (
-                <div key={pred.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 gap-3 hover:bg-card-hover transition-colors relative">
+                <div key={pred.id} className={`flex items-center gap-2 px-3 py-2.5 hover:bg-card-hover transition-colors relative ${isCompleted && !isCorrect ? "opacity-70" : ""}`}>
+                  {/* Left accent bar */}
                   {isCompleted && (
-                    <div className={`absolute left-0 top-0 w-1 h-full ${isCorrect ? "bg-success" : "bg-r6-red"}`} />
+                    <div className={`absolute left-0 top-0 w-0.5 h-full ${isCorrect ? "bg-success" : "bg-r6-red"}`} />
                   )}
-                  
-                  {/* Izquierda: Estado y Fase */}
-                  <div className="flex items-center gap-3 sm:w-[25%] pl-2 sm:pl-3">
-                    <div className={`w-6 h-6 flex items-center justify-center shrink-0 font-black text-[10px] ${
-                      isCorrect ? "bg-success/20 text-success" :
-                      isWrong ? "bg-r6-red/20 text-r6-red" :
-                      isLive ? "bg-accent/20 text-accent animate-pulse" :
-                      "bg-border text-text-secondary"
-                    }`}>
-                      {isCorrect ? "✓" : isWrong ? "✗" : isLive ? "▶" : "⏳"}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-heading font-bold text-text-secondary tracking-widest uppercase truncate">{match.stage}</p>
-                      <p className="text-[9px] text-muted tracking-wider truncate">{new Date(match.match_date).toLocaleDateString("es-ES", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
-                    </div>
+
+                  {/* Status icon */}
+                  <div className={`w-5 h-5 flex items-center justify-center shrink-0 text-[9px] font-black ${
+                    isCorrect ? "text-success" :
+                    isWrong ? "text-r6-red" :
+                    isLive ? "text-r6-red animate-pulse" :
+                    "text-text-secondary"
+                  }`}>
+                    {isCorrect ? "✓" : isWrong ? "✗" : isLive ? "●" : "⏳"}
                   </div>
 
-                  {/* Centro: Marcador */}
-                  <div className="flex items-center justify-between sm:justify-center gap-3 sm:w-[50%] bg-bg-alt/30 sm:bg-transparent p-2 sm:p-0 rounded">
-                    {/* Team A */}
-                    <div className={`flex items-center gap-2 w-[40%] sm:w-auto justify-end ${teamA_won ? "text-text" : isCompleted ? "text-text-secondary grayscale opacity-50 line-through" : "text-text"}`}>
-                      <span className="font-heading font-black text-sm tracking-widest">{match.team_a.short_name}</span>
-                      {match.team_a.logo_url ? (
-                        <Image src={match.team_a.logo_url} alt="" width={20} height={20} className="w-5 h-5 object-contain" />
-                      ) : (
-                        <div className="w-5 h-5 bg-bg flex items-center justify-center text-[8px] font-black">{match.team_a.short_name[0]}</div>
-                      )}
-                    </div>
-
-                    {/* Score */}
-                    <div className="flex-shrink-0 flex items-center justify-center w-[20%] sm:w-20">
-                      {isCompleted ? (
-                        <span className="font-heading font-black text-sm tracking-widest bg-bg border border-border px-2 py-1 flex gap-1.5">
-                          <span className={teamA_won ? "text-success" : ""}>{match.score_a}</span>
-                          <span className="text-text-secondary">-</span>
-                          <span className={teamB_won ? "text-success" : ""}>{match.score_b}</span>
-                        </span>
-                      ) : (
-                        <span className="font-heading font-bold text-[10px] tracking-widest text-border-light px-2 py-1">VS</span>
-                      )}
-                    </div>
-
-                    {/* Team B */}
-                    <div className={`flex items-center gap-2 w-[40%] sm:w-auto justify-start ${teamB_won ? "text-text" : isCompleted ? "text-text-secondary grayscale opacity-50 line-through" : "text-text"}`}>
-                      {match.team_b.logo_url ? (
-                        <Image src={match.team_b.logo_url} alt="" width={20} height={20} className="w-5 h-5 object-contain" />
-                      ) : (
-                        <div className="w-5 h-5 bg-bg flex items-center justify-center text-[8px] font-black">{match.team_b.short_name[0]}</div>
-                      )}
-                      <span className="font-heading font-black text-sm tracking-widest">{match.team_b.short_name}</span>
-                    </div>
+                  {/* Team A */}
+                  <div className={`flex items-center gap-1.5 w-[28%] justify-end ${teamA_won ? "" : isCompleted ? "opacity-40" : ""}`}>
+                    <span className={`font-heading font-black text-xs tracking-widest uppercase ${pickedA ? (isCorrect ? "text-success" : isWrong ? "text-r6-red" : "text-accent") : ""}`}>
+                      {match.team_a.short_name}
+                    </span>
+                    {match.team_a.logo_url ? (
+                      <Image src={match.team_a.logo_url} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain shrink-0" />
+                    ) : (
+                      <div className="w-[18px] h-[18px] bg-bg-alt flex items-center justify-center text-[7px] font-black shrink-0">{match.team_a.short_name[0]}</div>
+                    )}
                   </div>
 
-                  {/* Derecha: Tu Pick */}
-                  <div className="flex items-center justify-between sm:justify-end gap-3 sm:w-[25%] pr-2">
-                    <span className="text-[9px] text-text-secondary tracking-widest font-bold uppercase sm:hidden">TU PICK:</span>
-                    <div className="flex flex-col sm:items-end">
-                      <span className="text-[8px] text-text-secondary tracking-widest font-bold uppercase hidden sm:block mb-0.5">TU PICK</span>
-                      <span className={`font-heading font-black text-sm tracking-widest uppercase ${
-                        isCorrect ? "text-success" : isWrong ? "text-r6-red" : "text-accent"
-                      }`}>
-                        {pred.predicted_team?.short_name}
+                  {/* Score */}
+                  <div className="w-[14%] flex items-center justify-center shrink-0">
+                    {isCompleted ? (
+                      <span className="font-heading font-black text-xs tracking-wider bg-bg-alt border border-border/50 px-2 py-0.5 flex gap-1 items-center">
+                        <span className={teamA_won ? "text-success" : "text-text-secondary"}>{match.score_a}</span>
+                        <span className="text-border-light text-[10px]">-</span>
+                        <span className={teamB_won ? "text-success" : "text-text-secondary"}>{match.score_b}</span>
                       </span>
-                    </div>
+                    ) : isLive && match.score_a !== null ? (
+                      <span className="font-heading font-black text-xs tracking-wider text-r6-red animate-pulse">
+                        {match.score_a}-{match.score_b}
+                      </span>
+                    ) : (
+                      <span className="font-heading text-[10px] tracking-widest text-border-light">VS</span>
+                    )}
+                  </div>
+
+                  {/* Team B */}
+                  <div className={`flex items-center gap-1.5 w-[28%] ${teamB_won ? "" : isCompleted ? "opacity-40" : ""}`}>
+                    {match.team_b.logo_url ? (
+                      <Image src={match.team_b.logo_url} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain shrink-0" />
+                    ) : (
+                      <div className="w-[18px] h-[18px] bg-bg-alt flex items-center justify-center text-[7px] font-black shrink-0">{match.team_b.short_name[0]}</div>
+                    )}
+                    <span className={`font-heading font-black text-xs tracking-widest uppercase ${pickedB ? (isCorrect ? "text-success" : isWrong ? "text-r6-red" : "text-accent") : ""}`}>
+                      {match.team_b.short_name}
+                    </span>
+                  </div>
+
+                  {/* Phase tag (compact) */}
+                  <div className="hidden sm:flex items-center ml-auto">
+                    <span className="text-[8px] font-heading font-bold text-text-secondary/50 tracking-widest uppercase truncate max-w-[120px]">{match.stage.replace("Phase 1 - ", "P1·").replace("Phase 2 - ", "").replace("Playoffs - ", "")}</span>
                   </div>
                 </div>
               );
@@ -146,6 +191,7 @@ export function HistoryList({ predictions }: HistoryListProps) {
           </div>
         )}
       </div>
+      <p className="text-[10px] text-text-secondary/40 text-center tracking-widest font-heading uppercase">{filtered.length} predicciones</p>
     </div>
   );
 }

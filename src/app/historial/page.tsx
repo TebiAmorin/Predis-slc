@@ -56,31 +56,32 @@ export default async function HistorialPage() {
   const shareText = `🎯 Mis predicciones BLAST R6 Major SLC 2026:\n\n✅ Aciertos: ${correct}\n❌ Fallos: ${wrong}\n⏳ Pendientes: ${pending}\n📊 Precisión: ${total > 0 ? Math.round((correct / (correct + wrong || 1)) * 100) : 0}%\n\n¿Puedes superarme?\nhttps://predicciones.tebimedia.com\n\n@TebiiR6 #R6Major`;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-bg-alt/50 p-6 slc-cyber-clip border-l-4 border-l-success relative overflow-hidden">
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-bg-alt/50 p-4 sm:p-5 slc-cyber-clip border-l-4 border-l-success relative overflow-hidden">
         <div className="absolute right-0 top-0 w-32 h-full bg-success/5 -skew-x-12 translate-x-8" />
         <div className="relative z-10">
-          <h1 className="font-heading font-black text-3xl tracking-widest text-text drop-shadow-[0_0_8px_rgba(255,255,255,0.1)]">TU HISTORIAL</h1>
-          <p className="text-text-secondary font-bold font-heading tracking-widest text-xs mt-1 uppercase">Todas tus predicciones</p>
+          <h1 className="font-heading font-black text-2xl tracking-widest text-text">TU HISTORIAL</h1>
+          <p className="text-text-secondary font-bold font-heading tracking-widest text-[10px] mt-0.5 uppercase">Todas tus predicciones</p>
         </div>
         <a
           href={`https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-r6-red hover:bg-r6-red/80 text-white text-[11px] font-heading font-black px-4 py-2 slc-cyber-clip tracking-widest uppercase transition relative z-10 shadow-[0_0_10px_rgba(255,0,60,0.3)] hover:-translate-y-0.5"
+          className="flex items-center gap-2 bg-r6-red hover:bg-r6-red/80 text-white text-[10px] font-heading font-black px-3 py-1.5 slc-cyber-clip tracking-widest uppercase transition relative z-10"
         >
-          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
+          <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
           COMPARTIR
         </a>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-5 gap-3 sm:gap-4">
+      {/* Stats - compact row */}
+      <div className="flex gap-2 sm:gap-3">
         {/* Accuracy ring */}
-        <div className="col-span-5 sm:col-span-1 bg-card border border-border slc-cyber-clip p-5 flex flex-col items-center justify-center relative overflow-hidden animate-fade-in-up">
-          <div className="relative w-20 h-20">
+        <div className="bg-card border border-border slc-cyber-clip p-3 flex items-center gap-3 relative overflow-hidden shrink-0">
+          <div className="relative w-14 h-14">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <path
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -97,50 +98,50 @@ export default async function HistorialPage() {
                 strokeLinecap="round"
               />
             </svg>
-            <span className="absolute inset-0 flex items-center justify-center font-heading font-black text-xl text-accent">
+            <span className="absolute inset-0 flex items-center justify-center font-heading font-black text-base text-accent">
               {total > 0 ? Math.round((correct / (correct + wrong || 1)) * 100) : 0}%
             </span>
           </div>
-          <p className="text-[9px] text-text-secondary tracking-widest uppercase mt-2 font-bold">PRECISIÓN</p>
+          <span className="text-[9px] text-text-secondary tracking-widest uppercase font-bold hidden sm:block">PRECISIÓN</span>
         </div>
 
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-1">
-          <div className="absolute top-0 left-0 w-1 h-full bg-border-light" />
-          <p className="font-heading font-black text-3xl animate-count-up">{total}</p>
-          <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">TOTAL</p>
-        </div>
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-2">
-          <div className="absolute top-0 left-0 w-1 h-full bg-success" />
-          <p className="font-heading font-black text-3xl text-success animate-count-up">{correct}</p>
-          <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">ACIERTOS</p>
-        </div>
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-3">
-          <div className="absolute top-0 left-0 w-1 h-full bg-r6-red" />
-          <p className="font-heading font-black text-3xl text-r6-red animate-count-up">{wrong}</p>
-          <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">FALLOS</p>
-        </div>
-        <div className="bg-card border border-border slc-cyber-clip p-5 text-center relative overflow-hidden animate-fade-in-up stagger-4">
-          <div className="absolute top-0 left-0 w-1 h-full bg-accent" />
-          <p className="font-heading font-black text-3xl text-accent animate-count-up">{pending}</p>
-          <p className="text-[10px] text-text-secondary tracking-widest uppercase mt-1 font-bold">PENDIENTES</p>
+        <div className="flex-1 grid grid-cols-4 gap-2">
+          <div className="bg-card border border-border slc-cyber-clip p-3 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-0.5 h-full bg-border-light" />
+            <p className="font-heading font-black text-2xl">{total}</p>
+            <p className="text-[9px] text-text-secondary tracking-widest uppercase font-bold">TOTAL</p>
+          </div>
+          <div className="bg-card border border-border slc-cyber-clip p-3 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-0.5 h-full bg-success" />
+            <p className="font-heading font-black text-2xl text-success">{correct}</p>
+            <p className="text-[9px] text-text-secondary tracking-widest uppercase font-bold">ACIERTOS</p>
+          </div>
+          <div className="bg-card border border-border slc-cyber-clip p-3 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-0.5 h-full bg-r6-red" />
+            <p className="font-heading font-black text-2xl text-r6-red">{wrong}</p>
+            <p className="text-[9px] text-text-secondary tracking-widest uppercase font-bold">FALLOS</p>
+          </div>
+          <div className="bg-card border border-border slc-cyber-clip p-3 text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-0.5 h-full bg-accent" />
+            <p className="font-heading font-black text-2xl text-accent">{pending}</p>
+            <p className="text-[9px] text-text-secondary tracking-widest uppercase font-bold">PENDIENTES</p>
+          </div>
         </div>
       </div>
 
       {/* Lista Compacta Interactiva */}
-      <div className="pt-2">
-        {predictions && predictions.length > 0 ? (
-          <HistoryList 
-            predictions={predictions as unknown as Parameters<typeof HistoryList>[0]['predictions']} 
-          />
-        ) : (
-          <div className="text-center py-14 bg-bg-alt/50 slc-cyber-clip border border-border">
-            <p className="text-text-secondary font-heading tracking-widest uppercase font-bold text-sm">No has hecho predicciones aún</p>
-            <a href="/predicciones" className="text-accent text-xs font-bold font-heading tracking-widest uppercase mt-3 inline-block hover:text-accent-hover transition">
-              Hacer predicciones →
-            </a>
-          </div>
-        )}
-      </div>
+      {predictions && predictions.length > 0 ? (
+        <HistoryList
+          predictions={predictions as unknown as Parameters<typeof HistoryList>[0]['predictions']}
+        />
+      ) : (
+        <div className="text-center py-10 bg-bg-alt/50 slc-cyber-clip border border-border">
+          <p className="text-text-secondary font-heading tracking-widest uppercase font-bold text-sm">No has hecho predicciones aún</p>
+          <a href="/predicciones" className="text-accent text-xs font-bold font-heading tracking-widest uppercase mt-3 inline-block hover:text-accent-hover transition">
+            Hacer predicciones →
+          </a>
+        </div>
+      )}
 
       {/* Share Card */}
       {allMatches && allMatches.length > 0 && (
