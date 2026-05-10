@@ -35,16 +35,31 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
   const [generating, setGenerating] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
   const [mode, setMode] = useState<"picks" | "results">("picks");
-  const [roundFilter, setRoundFilter] = useState("all");
   const ref = useRef<HTMLDivElement>(null);
+
+  // Which round groups have predicted matches
+  const activeRounds = useMemo(() => {
+    const stagesWithPreds = new Set(matches.filter(m => userPredictions[m.id]).map(m => m.stage));
+    return ROUND_GROUPS.filter(g => g.id === "all" || g.stages.some(s => stagesWithPreds.has(s)));
+  }, [matches, userPredictions]);
+
+  // Default to last predicted phase (latest round with predictions)
+  const defaultRound = useMemo(() => {
+    if (activeRounds.length <= 1) return "all";
+    // Last active round (excluding "all")
+    return activeRounds[activeRounds.length - 1].id;
+  }, [activeRounds]);
+
+  const [roundFilter, setRoundFilter] = useState<string | null>(null);
+  const effectiveRound = roundFilter ?? defaultRound;
 
   // Filter matches by round
   const filteredMatches = useMemo(() => {
-    if (roundFilter === "all") return matches;
-    const group = ROUND_GROUPS.find(g => g.id === roundFilter);
+    if (effectiveRound === "all") return matches;
+    const group = ROUND_GROUPS.find(g => g.id === effectiveRound);
     if (!group) return matches;
     return matches.filter(m => group.stages.includes(m.stage));
-  }, [matches, roundFilter]);
+  }, [matches, effectiveRound]);
 
   const predictedMatches = filteredMatches.filter(m => userPredictions[m.id]);
   const finishedMatches = predictedMatches.filter(m => m.status === "completed");
@@ -59,12 +74,6 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
     wrong: finishedMatches.filter(m => userPredictions[m.id] !== m.winner_id).length,
   };
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-
-  // Which round groups have predicted matches
-  const activeRounds = useMemo(() => {
-    const stagesWithPreds = new Set(matches.filter(m => userPredictions[m.id]).map(m => m.stage));
-    return ROUND_GROUPS.filter(g => g.id === "all" || g.stages.some(s => stagesWithPreds.has(s)));
-  }, [matches, userPredictions]);
 
   async function preloadImages(container: HTMLElement) {
     const imgs = container.querySelectorAll("img");
@@ -111,7 +120,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
       document.body.removeChild(clone);
 
       const link = document.createElement("a");
-      link.download = `mis-${mode}-${roundFilter}-slc.png`;
+      link.download = `mis-${mode}-${effectiveRound}-slc.png`;
       link.href = dataUrl;
       link.click();
       toast.success("¡Imagen descargada!");
@@ -125,7 +134,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
           skipFonts: true,
         });
         const link = document.createElement("a");
-        link.download = `mis-${mode}-${roundFilter}-slc.png`;
+        link.download = `mis-${mode}-${effectiveRound}-slc.png`;
         link.href = dataUrl;
         link.click();
         toast.success("¡Imagen descargada!");
@@ -137,12 +146,12 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
     }
   }
 
-  if (predictedMatches.length === 0 && roundFilter === "all") return null;
+  if (predictedMatches.length === 0 && effectiveRound === "all") return null;
 
   // Dynamic grid
   const gridClass = matchCount <= 4 ? "grid-cols-2 gap-6" : "grid-cols-4 gap-5";
   const cardHeight = matchCount <= 4 ? "min-h-[800px]" : "min-h-[950px]";
-  const roundLabel = getRoundLabel(roundFilter);
+  const roundLabel = getRoundLabel(effectiveRound);
 
   return (
     <div className="mt-16 mb-8 flex flex-col items-center w-full overflow-hidden border-t border-border pt-12">
@@ -175,9 +184,9 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
           {activeRounds.map((g) => (
             <button
               key={g.id}
-              onClick={() => setRoundFilter(g.id)}
+              onClick={() => setRoundFilter(g.id === defaultRound ? null : g.id)}
               className={`shrink-0 px-3 py-2 text-[10px] font-heading font-bold tracking-widest uppercase transition-all border slc-cyber-clip ${
-                roundFilter === g.id
+                effectiveRound === g.id
                   ? "bg-accent/15 border-accent/50 text-accent"
                   : "bg-bg-alt border-border text-text-secondary hover:text-text hover:border-border-light"
               }`}
@@ -231,7 +240,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                     <div className="text-right">
                       <h1 className="text-white text-4xl font-black tracking-widest uppercase italic leading-none">SIX MAJOR</h1>
                       <p className="text-r6-red text-2xl font-black tracking-widest uppercase mt-1 italic">SLC 2026</p>
-                      {roundFilter !== "all" && (
+                      {effectiveRound !== "all" && (
                         <p className="text-accent text-sm font-black tracking-widest uppercase mt-2 bg-accent/10 px-3 py-1 border border-accent/20 inline-block">{roundLabel}</p>
                       )}
                     </div>
@@ -304,7 +313,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                         <div className="text-center mb-10 relative z-10">
                           <h3 className="text-accent text-6xl font-black tracking-widest uppercase italic">{displayMatches.length} PICKS</h3>
                           <div className="w-48 h-1.5 bg-gradient-to-r from-transparent via-accent/50 to-transparent mx-auto mt-4" />
-                          {roundFilter !== "all" && (
+                          {effectiveRound !== "all" && (
                             <p className="text-accent/60 text-lg tracking-[0.3em] uppercase mt-3 font-black italic">{roundLabel}</p>
                           )}
                         </div>

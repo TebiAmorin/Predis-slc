@@ -77,16 +77,17 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
   async function handleSave() {
     if (!userId || !pendingPick || saving) return;
     setSaving(true);
-    if (savedPrediction) {
-      await supabase
-        .from("predictions")
-        .update({ predicted_team_id: pendingPick })
-        .eq("user_id", userId)
-        .eq("match_id", match.id);
-    } else {
-      await supabase.from("predictions").insert({
-        user_id: userId, match_id: match.id, predicted_team_id: pendingPick,
-      });
+    const { error } = await supabase
+      .from("predictions")
+      .upsert(
+        { user_id: userId, match_id: match.id, predicted_team_id: pendingPick },
+        { onConflict: "user_id,match_id" }
+      );
+    if (error) {
+      console.error("Error saving prediction:", error);
+      toast.error("Error al guardar. Inténtalo de nuevo.", { duration: 3000 });
+      setSaving(false);
+      return;
     }
     setSavedPrediction(pendingPick);
     setPendingPick(null);

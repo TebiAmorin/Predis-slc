@@ -13,7 +13,7 @@ type Props = {
 
 export function MatchFilters({ matches, userPredictions, userId, matchStats }: Props) {
   const [stageFilter, setStageFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("upcoming");
 
   const stages = useMemo(() => Array.from(new Set(matches.map(m => m.stage))), [matches]);
 
