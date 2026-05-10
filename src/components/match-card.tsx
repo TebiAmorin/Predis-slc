@@ -34,6 +34,7 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
   const router = useRouter();
 
   const [isLiveDynamic, setIsLiveDynamic] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     function checkLive() {
@@ -41,6 +42,7 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
       setIsLiveDynamic(match.status === "live" || (match.status !== "completed" && timePassed));
     }
     checkLive();
+    setMounted(true);
     const interval = setInterval(checkLive, 60000);
     return () => clearInterval(interval);
   }, [match.status, match.match_date]);
@@ -142,8 +144,8 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
     }`}>
       {/* Top bar */}
       <div className="flex justify-between items-center px-4 py-2 border-b border-border/50 bg-bg-alt/80">
-        <span className="font-heading font-black text-[9px] sm:text-[10px] text-text-secondary uppercase tracking-widest">
-          {match.stage} - {dayStr}
+        <span className="font-heading font-black text-[9px] sm:text-[10px] text-text-secondary uppercase tracking-widest" suppressHydrationWarning>
+          {match.stage} - {mounted ? dayStr : "..."}
         </span>
         <span className="font-heading font-black text-[9px] sm:text-[10px] uppercase tracking-widest text-text-secondary">
           {isCompleted ? "COMPLETADO" : isLiveDynamic ? <span className="text-r6-red animate-pulse">EN VIVO</span> : "PENDIENTE"}
@@ -210,8 +212,8 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
                   LIVE
                 </a>
               ) : (
-                <span className="text-[10px] text-text-secondary font-bold tracking-widest mt-1">
-                  {timeStr}
+                <span className="text-[10px] text-text-secondary font-bold tracking-widest mt-1" suppressHydrationWarning>
+                  {mounted ? timeStr : "--:--"}
                 </span>
               )}
             </>

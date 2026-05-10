@@ -600,9 +600,9 @@ export default function AdminPage() {
                         <td className="p-4 whitespace-nowrap text-right">
                           {hasTeams ? (
                             <>
-                              <span className={isFinished && match.winner_id === match.team_a_id ? "text-green-400 font-black text-base" : isFinished ? "text-gray-500" : "font-bold"}>{match.team_a?.short_name}</span>
+                              <span className={isFinished && match.winner_id === match.team_a_id ? "text-green-400 font-black text-base" : isFinished ? "text-gray-500" : "font-bold"}>{match.team_a?.short_name || "TBD"}</span>
                               <span className="text-gray-600 mx-2 text-xs">vs</span>
-                              <span className={isFinished && match.winner_id === match.team_b_id ? "text-green-400 font-black text-base" : isFinished ? "text-gray-500" : "font-bold"}>{match.team_b?.short_name}</span>
+                              <span className={isFinished && match.winner_id === match.team_b_id ? "text-green-400 font-black text-base" : isFinished ? "text-gray-500" : "font-bold"}>{match.team_b?.short_name || "TBD"}</span>
                             </>
                           ) : (
                             <span className="text-purple-400/60 text-xs font-bold">TBD vs TBD</span>
@@ -744,11 +744,11 @@ export default function AdminPage() {
                 <p className="text-sm text-gray-400 mt-1">{modalMatch.stage} — BO{modalMatch.best_of}</p>
                 {modalMatch.team_a && modalMatch.team_b && (
                   <p className="text-lg font-bold text-gray-300 mt-2 flex items-center gap-3">
-                    {modalMatch.team_a.logo_url && <img src={modalMatch.team_a.logo_url} className="w-6 h-6 object-contain" alt="" />}
-                    {modalMatch.team_a.short_name}
+                    {modalMatch.team_a?.logo_url && <img src={modalMatch.team_a.logo_url} className="w-6 h-6 object-contain" alt="" />}
+                    {modalMatch.team_a?.short_name || "TBD"}
                     <span className="text-gray-600 text-sm">vs</span>
-                    {modalMatch.team_b.logo_url && <img src={modalMatch.team_b.logo_url} className="w-6 h-6 object-contain" alt="" />}
-                    {modalMatch.team_b.short_name}
+                    {modalMatch.team_b?.logo_url && <img src={modalMatch.team_b.logo_url} className="w-6 h-6 object-contain" alt="" />}
+                    {modalMatch.team_b?.short_name || "TBD"}
                   </p>
                 )}
               </div>

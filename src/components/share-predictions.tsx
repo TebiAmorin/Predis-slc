@@ -80,21 +80,31 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
     await Promise.all(
       Array.from(imgs).map(async (img) => {
         if (!img.src || img.src.startsWith("data:")) return;
+        
+        // Skip images that already failed to load
+        if (img.complete && img.naturalWidth === 0) {
+          img.style.display = "none";
+          return;
+        }
+
         try {
-          const res = await fetch(img.src, { mode: "no-cors" }).catch(() => null);
+          const res = await fetch(img.src, { mode: "cors" }).catch(() => null);
           if (!res || !res.ok) {
-            img.style.display = "none";
+            // If CORS fetch fails, we can't get dataURL, but maybe toPng can handle it
+            // if we set crossOrigin="anonymous" (which is already set on some)
             return;
           }
           const blob = await res.blob();
           const reader = new FileReader();
-          const dataUrl = await new Promise<string>((resolve) => {
+          const dataUrl = await new Promise<string>((resolve, reject) => {
             reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
             reader.readAsDataURL(blob);
           });
           img.src = dataUrl;
-        } catch {
-          img.style.display = "none";
+        } catch (e) {
+          console.warn("Failed to preload image:", img.src, e);
+          // Don't hide the image yet, toPng might still try to render it
         }
       })
     );
@@ -113,8 +123,9 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
 
       const dataUrl = await toPng(clone, {
         cacheBust: true,
-        pixelRatio: 3,
+        pixelRatio: 2, // 3 was maybe too much
         backgroundColor: "#07090D",
+        includeQueryParams: true,
       });
 
       document.body.removeChild(clone);
@@ -127,9 +138,9 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
     } catch (err) {
       console.error("Failed to generate image", err);
       try {
+        // Fallback with simpler settings
         const dataUrl = await toPng(ref.current!, {
-          cacheBust: false,
-          pixelRatio: 2,
+          pixelRatio: 1.5,
           backgroundColor: "#07090D",
           skipFonts: true,
         });
@@ -138,7 +149,8 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
         link.href = dataUrl;
         link.click();
         toast.success("¡Imagen descargada!");
-      } catch {
+      } catch (innerErr) {
+        console.error("Final fallback failed", innerErr);
         toast.error("Error al generar la imagen. Prueba con una captura de pantalla.");
       }
     } finally {

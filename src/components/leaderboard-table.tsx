@@ -7,6 +7,7 @@ import Image from "next/image";
 export function LeaderboardTable({ entries, currentUserId }: { entries: LeaderboardEntry[]; currentUserId?: string }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
   const pageSize = 50;
 
   const filteredEntries = useMemo(() => {
@@ -47,10 +48,20 @@ export function LeaderboardTable({ entries, currentUserId }: { entries: Leaderbo
                 className={`relative bg-gradient-to-b ${medalColors.bg} border ${medalColors.border} ${medalColors.glow} slc-cyber-clip p-4 sm:p-5 text-center transition-all ${isFirst ? "sm:-mt-4" : ""} ${isMe ? "ring-1 ring-accent/50" : ""} animate-fade-in-up stagger-${visualIdx + 1}`}
               >
                 <span className="text-2xl sm:text-3xl block mb-2 animate-count-up">{medalColors.medal}</span>
-                {entry.avatar_url ? (
-                  <Image src={entry.avatar_url} alt="" width={48} height={48} className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto slc-cyber-clip border-2 ${medalColors.border}`} unoptimized />
+                {entry.avatar_url && !brokenImages[entry.id] ? (
+                  <Image
+                    src={entry.avatar_url}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto slc-cyber-clip border-2 ${medalColors.border}`}
+                    unoptimized
+                    onError={() => setBrokenImages(prev => ({ ...prev, [entry.id]: true }))}
+                  />
                 ) : (
-                  <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto slc-cyber-clip bg-border ${medalColors.border} border-2`} />
+                  <div className={`w-10 h-10 sm:w-12 sm:h-12 mx-auto slc-cyber-clip bg-border ${medalColors.border} border-2 flex items-center justify-center text-xs font-black`}>
+                    {(entry.display_name || entry.username || "U")[0].toUpperCase()}
+                  </div>
                 )}
                 <p className="font-heading font-black text-xs sm:text-sm tracking-widest mt-2 truncate uppercase">
                   {entry.display_name || entry.username || "Anon"}
@@ -117,10 +128,20 @@ export function LeaderboardTable({ entries, currentUserId }: { entries: Leaderbo
               </span>
 
               <div className="flex items-center gap-3 min-w-0">
-                {entry.avatar_url ? (
-                  <Image src={entry.avatar_url} alt="" width={32} height={32} className="w-8 h-8 slc-cyber-clip shrink-0" />
+                {entry.avatar_url && !brokenImages[entry.id] ? (
+                  <Image
+                    src={entry.avatar_url}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="w-8 h-8 slc-cyber-clip shrink-0"
+                    unoptimized
+                    onError={() => setBrokenImages(prev => ({ ...prev, [entry.id]: true }))}
+                  />
                 ) : (
-                  <div className="w-8 h-8 slc-cyber-clip bg-border shrink-0" />
+                  <div className="w-8 h-8 slc-cyber-clip bg-border shrink-0 flex items-center justify-center text-[10px] font-black">
+                    {(entry.display_name || entry.username || "U")[0].toUpperCase()}
+                  </div>
                 )}
                 <div className="min-w-0">
                   <p className="font-medium text-sm truncate text-text group-hover:text-accent transition-colors">

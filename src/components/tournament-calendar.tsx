@@ -44,6 +44,11 @@ export function TournamentCalendar({ matches }: Props) {
   const [year, setYear] = useState(2026);
   const [month, setMonth] = useState(4); // 0-indexed, 4 = May
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { daysInMonth, startDow } = useMemo(() => getMonthDays(year, month), [year, month]);
 
@@ -224,8 +229,8 @@ export function TournamentCalendar({ matches }: Props) {
               <h3 className="font-heading font-black text-sm tracking-widest uppercase text-text">
                 {selectedSchedule?.dayLabel || new Date(selectedDate).toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}
               </h3>
-              <p className="text-[10px] text-text-secondary font-heading tracking-widest uppercase mt-0.5">
-                {new Date(selectedDate + "T12:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })}
+              <p className="text-[10px] text-text-secondary font-heading tracking-widest uppercase mt-0.5" suppressHydrationWarning>
+                {mounted ? new Date(selectedDate + "T12:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" }) : "..."}
               </p>
             </div>
             {selectedSchedule && (
@@ -239,7 +244,7 @@ export function TournamentCalendar({ matches }: Props) {
           <div className="divide-y divide-border/30">
             {/* Real matches first */}
             {selectedMatches.map((match) => (
-              <MatchRow key={match.id} match={match} />
+              <MatchRow key={match.id} match={match} mounted={mounted} />
             ))}
 
             {/* TBD slots for remaining expected matches */}
@@ -261,10 +266,10 @@ export function TournamentCalendar({ matches }: Props) {
   );
 }
 
-function MatchRow({ match }: { match: MatchWithTeams }) {
+function MatchRow({ match, mounted }: { match: MatchWithTeams; mounted: boolean }) {
   const isCompleted = match.status === "completed";
   const isLive = match.status === "live";
-  const time = new Date(match.match_date).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+  const time = mounted ? new Date(match.match_date).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }) : "--:--";
   const teamAWon = isCompleted && match.winner_id === match.team_a_id;
   const teamBWon = isCompleted && match.winner_id === match.team_b_id;
 

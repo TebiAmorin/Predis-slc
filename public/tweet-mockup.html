@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tweet Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1200px;
+    height: 675px;
+    background: #07090D;
+    background-image:
+      radial-gradient(at 100% 0%, rgba(227, 0, 59, 0.15) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(0, 229, 209, 0.15) 0px, transparent 50%);
+    font-family: 'Rajdhani', sans-serif;
+    color: #F8FAFC;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Dot grid overlay */
+  .dots {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 24px 24px;
+    pointer-events: none;
+  }
+
+  /* Decorative corner cuts */
+  .corner-tl { position: absolute; top: 20px; left: 20px; width: 40px; height: 40px; border-top: 3px solid rgba(0,229,209,0.4); border-left: 3px solid rgba(0,229,209,0.4); }
+  .corner-br { position: absolute; bottom: 20px; right: 20px; width: 40px; height: 40px; border-bottom: 3px solid rgba(227,0,59,0.4); border-right: 3px solid rgba(227,0,59,0.4); }
+
+  .content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    height: 100%;
+    padding: 40px 50px;
+    gap: 50px;
+  }
+
+  .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: rgba(0,229,209,0.1);
+    border: 1px solid rgba(0,229,209,0.3);
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #00E5D1;
+    width: fit-content;
+  }
+  .badge .red { color: #E3003B; margin-right: 8px; }
+
+  .title {
+    font-size: 64px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    background: linear-gradient(135deg, #F8FAFC 0%, #94A3B8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #00E5D1;
+  }
+  .subtitle .red { color: #E3003B; }
+
+  .desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #94A3B8;
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  .features {
+    display: flex;
+    gap: 24px;
+    margin-top: 8px;
+  }
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #94A3B8;
+  }
+  .feature .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00E5D1;
+    flex-shrink: 0;
+  }
+
+  .cta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+  }
+  .cta-btn {
+    background: #00E5D1;
+    color: #07090D;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border: none;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  .cta-url {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #64748B;
+    letter-spacing: 0.05em;
+  }
+
+  .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  /* Simulated match cards */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    transform: perspective(1200px) rotateY(-8deg) rotateX(3deg);
+    filter: drop-shadow(0 20px 60px rgba(0,0,0,0.5));
+  }
+
+  .match-card {
+    background: #131720;
+    border: 1px solid #2A313E;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    padding: 16px;
+    width: 230px;
+    text-align: center;
+  }
+  .match-card.active { border-color: rgba(0,229,209,0.5); box-shadow: 0 0 20px rgba(0,229,209,0.1); }
+  .match-card.completed { opacity: 0.5; }
+
+  .card-header {
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #64748B;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .card-header .live { color: #E3003B; }
+  .card-header .pending { color: #64748B; }
+
+  .teams-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid transparent;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    width: 42%;
+  }
+  .team.picked { border-color: rgba(0,229,209,0.5); background: rgba(0,229,209,0.08); }
+  .team.winner { border-color: rgba(0,229,209,0.3); background: rgba(0,229,209,0.05); }
+  .team.loser { opacity: 0.3; }
+
+  .team-logo {
+    width: 36px;
+    height: 36px;
+    background: #1C222E;
+    border: 1px solid #2A313E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 900;
+    clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+    color: #94A3B8;
+  }
+  .team-name {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .team-name.accent { color: #00E5D1; }
+  .team-name.success { color: #00E5D1; }
+  .team-pct {
+    font-size: 9px;
+    color: #64748B;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .vs {
+    font-size: 14px;
+    font-weight: 700;
+    color: #3A4456;
+    letter-spacing: 0.2em;
+  }
+  .score {
+    font-size: 20px;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #F8FAFC;
+  }
+  .score .w { color: #00E5D1; }
+  .score-label { font-size: 7px; color: #64748B; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; margin-top: 2px; background: #0D1117; border: 1px solid #2A313E; padding: 2px 6px; }
+  .time { font-size: 9px; color: #64748B; font-weight: 700; letter-spacing: 0.1em; }
+
+  .card-footer {
+    display: flex;
+    margin-top: 10px;
+    border-top: 1px solid rgba(42,49,62,0.5);
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 900;
+  }
+  .card-footer > div {
+    flex: 1;
+    padding: 8px 0;
+    text-align: center;
+  }
+  .card-footer .pick { color: #00E5D1; background: rgba(0,229,209,0.08); }
+  .card-footer .correct { color: #00E5D1; background: rgba(0,229,209,0.15); }
+  .card-footer .action { color: #64748B; }
+
+  /* Glow behind cards */
+  .glow-accent {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(0,229,209,0.08);
+    border-radius: 50%;
+    filter: blur(80px);
+    top: 50%;
+    left: 55%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #00E5D1, #E3003B);
+    opacity: 0.6;
+  }
+
+  /* Logo area */
+  .logo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .logo-box {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-box img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-text { font-weight: 900; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .logo-sub { font-size: 10px; color: #E3003B; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; }
+
+  .prize-tag {
+    margin-top: 12px;
+    background: rgba(0,229,209,0.05);
+    border: 1px solid rgba(0,229,209,0.2);
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  .prize-tag .emoji { font-size: 22px; }
+  .prize-tag .prize-text { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #00E5D1; }
+  .prize-tag .prize-desc { font-size: 10px; color: #94A3B8; font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body>
+  <div class="dots"></div>
+  <div class="corner-tl"></div>
+  <div class="corner-br"></div>
+  <div class="bottom-bar"></div>
+
+  <div class="content">
+    <div class="left">
+      <div class="logo-row">
+        <div class="logo-box"><img src="/fantasix_logoW.png" alt="Logo"></div>
+        <div>
+          <div class="logo-text">Six Major</div>
+          <div class="logo-sub">Salt Lake City</div>
+        </div>
+      </div>
+
+      <div class="badge"><span class="red">&#9632;</span> 8 — 17 MAYO 2026</div>
+
+      <h1 class="title">PREDICE EL<br>MAJOR</h1>
+
+      <div class="subtitle">BLAST <span class="red">R6</span> MAJOR</div>
+
+      <p class="desc">Elige al ganador de cada partido, compite en el leaderboard y gana un premio exclusivo del Major SLC 2026.</p>
+
+      <div class="features">
+        <div class="feature"><span class="dot"></span>20 Equipos</div>
+        <div class="feature"><span class="dot"></span>Leaderboard</div>
+        <div class="feature"><span class="dot"></span>Premios</div>
+      </div>
+
+      <div class="prize-tag">
+        <span class="emoji">🏆</span>
+        <div>
+          <div class="prize-text">Premio al #1</div>
+          <div class="prize-desc">Pack exclusivo del Major SLC</div>
+        </div>
+      </div>
+
+      <div class="cta">
+        <div class="cta-btn">HACER PREDICCIONES</div>
+        <span class="cta-url">predicciones.tebimedia.com</span>
+      </div>
+    </div>
+
+    <div class="right">
+      <div class="glow-accent"></div>
+      <div class="cards-grid">
+        <!-- Card 1: Completed -->
+        <div class="match-card completed">
+          <div class="card-header">
+            <span>P1 - UPPER</span>
+            <span>COMPLETADO</span>
+          </div>
+          <div class="teams-row">
+            <div class="team winner">
+              <div class="team-logo">LOS</div>
+              <div class="team-name success">LOS</div>
+            </div>
+            <div style="text-align:center">
+              <div class="score"><span class="w">2</span> - 0</div>
+              <div class="score-label">FINAL</div>
+            </div>
+            <div class="team loser">
+              <div class="team-logo">WOL</div>
+              <div class="team-name">WOL</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="correct">✓ ACIERTO</div>
+            <div class="action">FINALIZADO</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Picked with save -->
+        <div class="match-card active">
+          <div class="card-header">
+            <span>P1 - UPPER</span>
+            <span class="pending">PENDIENTE</span>
+          </div>
+          <div class="teams-row">
+            <div class="team picked">
+              <div class="team-logo">EP</div>
+              <div class="team-name accent">EP</div>
+              <div class="team-pct">75%</div>
+            </div>
+            <div style="text-align:center">
+              <div class="vs">VS</div>
+              <div class="time">18:30</div>
+            </div>
+            <div class="team">
+              <div class="team-logo">EDG</div>
+              <div class="team-name">EDG</div>
+              <div class="team-pct">25%</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="pick">EP</div>
+            <div class="action">PREDICE AHORA</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Upcoming -->
+        <div class="match-card">
+          <div class="card-header">
+            <span>P1 - UPPER</span>
+            <span class="pending">PENDIENTE</span>
+          </div>
+          <div class="teams-row">
+            <div class="team picked">
+              <div class="team-logo">FLCS</div>
+              <div class="team-name accent">FLCS</div>
+              <div class="team-pct">100%</div>
+            </div>
+            <div style="text-align:center">
+              <div class="vs">VS</div>
+              <div class="time">19:30</div>
+            </div>
+            <div class="team">
+              <div class="team-logo">DAY</div>
+              <div class="team-name">DAY</div>
+              <div class="team-pct">0%</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="pick">FLCS</div>
+            <div class="action">PREDICE AHORA</div>
+          </div>
+        </div>
+
+        <!-- Card 4: Upcoming no pick -->
+        <div class="match-card">
+          <div class="card-header">
+            <span>P1 - UPPER</span>
+            <span class="pending">PENDIENTE</span>
+          </div>
+          <div class="teams-row">
+            <div class="team">
+              <div class="team-logo">SR</div>
+              <div class="team-name">SR</div>
+            </div>
+            <div style="text-align:center">
+              <div class="vs">VS</div>
+              <div class="time">20:30</div>
+            </div>
+            <div class="team">
+              <div class="team-logo">4AM</div>
+              <div class="team-name">4AM</div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="action" style="color:#64748B">SIN PREDICCIÓN</div>
+            <div class="action">PREDICE AHORA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
