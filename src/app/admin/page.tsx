@@ -195,19 +195,6 @@ export default function AdminPage() {
     showToast("Partido despublicado");
   }
 
-  async function assignTeams(matchId: string, teamAId: string, teamBId: string) {
-    if (!teamAId || !teamBId) { alert("Selecciona ambos equipos"); return; }
-    if (teamAId === teamBId) { alert("Equipos iguales"); return; }
-    setSaving(true);
-    await supabase.from("matches").update({
-      team_a_id: teamAId,
-      team_b_id: teamBId,
-    }).eq("id", matchId);
-    await loadData();
-    setSaving(false);
-    showToast("Equipos asignados");
-  }
-
   async function publishAllInStage(stage: string) {
     const draftsInStage = matches.filter(m => m.stage === stage && m.status === "draft" && m.team_a_id && m.team_b_id);
     if (draftsInStage.length === 0) { alert("No hay drafts listos para publicar en esta fase"); return; }

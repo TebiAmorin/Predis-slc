@@ -24,10 +24,6 @@ export default async function InfoPage() {
     .neq("status", "draft")
     .order("match_date", { ascending: true });
 
-  const { data: teams } = await supabase
-    .from("teams")
-    .select("*")
-    .order("name", { ascending: true });
 
   return (
     <div className="space-y-6">
