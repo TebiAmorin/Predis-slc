@@ -21,7 +21,7 @@ function TeamLogo({ team }: { team: Team }) {
   }
   return (
     <div className="w-12 h-12 sm:w-14 sm:h-14 bg-bg-alt border border-border flex items-center justify-center font-heading font-black text-lg text-text-secondary slc-cyber-clip">
-      {team.short_name}
+      {team?.short_name || "???"}
     </div>
   );
 }
@@ -129,7 +129,7 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
 
   let pickText = "SIN PREDICCIÓN";
   if (savedPrediction) {
-    const pickedName = savedPrediction === match.team_a_id ? match.team_a.short_name : match.team_b.short_name;
+    const pickedName = savedPrediction === match.team_a_id ? (match.team_a?.short_name || "???") : (match.team_b?.short_name || "???");
     if (correctPick) pickText = `✓ ACIERTO: ${pickedName}`;
     else if (wrongPick) pickText = `✗ FALLO: ${pickedName}`;
     else pickText = pickedName;
@@ -153,8 +153,8 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
       <div className="flex flex-row p-4 relative z-10 items-center justify-between">
         {/* Team A */}
         <button
-          onClick={() => handleTeamClick(match.team_a_id)}
-          disabled={(!userId && !readonlyRedirect) || !!isLocked || saving}
+          onClick={() => match.team_a_id && handleTeamClick(match.team_a_id)}
+          disabled={(!userId && !readonlyRedirect) || !!isLocked || saving || !match.team_a_id}
           className={`w-[40%] flex flex-col items-center gap-2 p-3 slc-cyber-clip border transition-all duration-300 ${getTeamStyle(isPickedA, winnerA)} ${(!userId && !readonlyRedirect) || isLocked ? "cursor-default" : "cursor-pointer hover:-translate-y-1 hover:border-accent/50"} relative touch-bounce`}
         >
           <TeamLogo team={match.team_a} />
@@ -162,7 +162,7 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
             isCompleted ? (winnerA ? "text-success drop-shadow-[0_0_8px_rgba(0,255,136,0.3)]" : "text-text-secondary line-through decoration-r6-red/50")
             : isPickedA ? "text-accent" : "text-text"
           }`}>
-            {match.team_a.short_name}
+            {match.team_a?.short_name || "TBD"}
           </span>
           {showStats && <span className="text-[10px] text-text-secondary font-bold tracking-widest">{teamAPercent}%</span>}
         </button>
@@ -219,8 +219,8 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
 
         {/* Team B */}
         <button
-          onClick={() => handleTeamClick(match.team_b_id)}
-          disabled={(!userId && !readonlyRedirect) || !!isLocked || saving}
+          onClick={() => match.team_b_id && handleTeamClick(match.team_b_id)}
+          disabled={(!userId && !readonlyRedirect) || !!isLocked || saving || !match.team_b_id}
           className={`w-[40%] flex flex-col items-center gap-2 p-3 slc-cyber-clip border transition-all duration-300 ${getTeamStyle(isPickedB, winnerB)} ${(!userId && !readonlyRedirect) || isLocked ? "cursor-default" : "cursor-pointer hover:-translate-y-1 hover:border-accent/50"} relative touch-bounce`}
         >
           <TeamLogo team={match.team_b} />
@@ -228,7 +228,7 @@ export function MatchCard({ match, userPrediction, userId, readonlyRedirect, mat
             isCompleted ? (winnerB ? "text-success drop-shadow-[0_0_8px_rgba(0,255,136,0.3)]" : "text-text-secondary line-through decoration-r6-red/50")
             : isPickedB ? "text-accent" : "text-text"
           }`}>
-            {match.team_b.short_name}
+            {match.team_b?.short_name || "TBD"}
           </span>
           {showStats && <span className="text-[10px] text-text-secondary font-bold tracking-widest">{teamBPercent}%</span>}
         </button>

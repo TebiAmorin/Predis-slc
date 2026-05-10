@@ -9,8 +9,8 @@ export type Team = {
 
 export type Match = {
   id: string;
-  team_a_id: string;
-  team_b_id: string;
+  team_a_id: string | null;
+  team_b_id: string | null;
   stage: string;
   best_of: number;
   match_date: string;
@@ -18,9 +18,9 @@ export type Match = {
   winner_id: string | null;
   score_a: number | null;
   score_b: number | null;
-  status: "upcoming" | "live" | "completed";
-  team_a?: Team;
-  team_b?: Team;
+  status: "draft" | "upcoming" | "live" | "completed";
+  team_a?: Team | null;
+  team_b?: Team | null;
 };
 
 export type Profile = {

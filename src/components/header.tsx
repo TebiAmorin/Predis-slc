@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { href: "/predicciones", label: "Predicciones" },
   { href: "/leaderboard", label: "Leaderboard" },
   { href: "/historial", label: "Historial" },
+  { href: "/info", label: "Info" },
 ];
 
 export function Header() {

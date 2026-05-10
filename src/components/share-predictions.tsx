@@ -275,12 +275,13 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                           const isCorrect = userPredictions[m.id] === m.winner_id;
                           const team = userPredictions[m.id] === m.team_a_id ? m.team_a : m.team_b;
                           const vs = userPredictions[m.id] === m.team_a_id ? m.team_b : m.team_a;
+                          if (!team) return null;
                           return (
                             <div key={m.id} className={`p-4 border-2 slc-cyber-clip flex items-center gap-4 ${isCorrect ? 'bg-success/10 border-success/40' : 'bg-r6-red/10 border-r6-red/40'}`}>
                               <img src={team.logo_url || ""} className="w-14 h-14 object-contain" alt="" />
                               <div className="min-w-0">
                                 <p className="text-white font-black text-lg truncate uppercase italic">{team.short_name}</p>
-                                <p className="text-xs text-text-secondary font-bold uppercase tracking-widest opacity-70">vs {vs.short_name}</p>
+                                <p className="text-xs text-text-secondary font-bold uppercase tracking-widest opacity-70">vs {vs?.short_name || "???"}</p>
                                 <div className="flex items-center gap-2 mt-0.5">
                                   <p className={`text-base font-black italic ${isCorrect ? 'text-success' : 'text-r6-red'}`}>
                                     {m.score_a} - {m.score_b}
@@ -314,6 +315,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                             const isTeamA = match.team_a_id === pickedTeamId;
                             const team = isTeamA ? match.team_a : match.team_b;
                             const opposingTeam = isTeamA ? match.team_b : match.team_a;
+                            if (!team) return null;
 
                             return (
                               <div key={match.id} className="bg-black/40 border-2 border-border/60 flex flex-col items-center justify-center p-6 slc-cyber-clip relative">
@@ -325,7 +327,7 @@ export function SharePredictions({ matches, userPredictions, user }: Props) {
                                 <span className="text-white font-black text-xl tracking-widest uppercase block italic">{team.short_name}</span>
                                 <div className="flex items-center justify-center gap-1.5 mt-2 opacity-40">
                                   <span className="w-2 h-[1px] bg-text-secondary" />
-                                  <span className="text-text-secondary font-black text-[10px] tracking-[0.15em] uppercase">VS {opposingTeam.short_name}</span>
+                                  <span className="text-text-secondary font-black text-[10px] tracking-[0.15em] uppercase">VS {opposingTeam?.short_name || "???"}</span>
                                   <span className="w-2 h-[1px] bg-text-secondary" />
                                 </div>
                               </div>

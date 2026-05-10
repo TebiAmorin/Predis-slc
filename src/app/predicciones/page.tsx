@@ -22,6 +22,7 @@ export default async function PrediccionesPage() {
   const { data: matches } = await supabase
     .from("matches")
     .select("*, team_a:teams!matches_team_a_id_fkey(*), team_b:teams!matches_team_b_id_fkey(*)")
+    .neq("status", "draft")
     .order("match_date", { ascending: true });
 
   let userPredictions: Record<string, string> = {};
