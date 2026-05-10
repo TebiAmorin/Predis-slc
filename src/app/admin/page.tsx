@@ -722,7 +722,7 @@ export default function AdminPage() {
       {/* ========== MODAL: EDITAR PARTIDO ========== */}
       {modalMatch && modalMode === "edit" && (
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 backdrop-blur-md p-4" onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}>
-          <div className="bg-[#151923] border border-[#2c3345] rounded-2xl p-8 w-full max-w-2xl shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#151923] border border-[#2c3345] rounded-2xl p-8 w-full max-w-4xl shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start border-b border-[#2c3345] pb-4">
               <div>
                 <h2 className="text-2xl font-black text-white uppercase">
@@ -947,17 +947,17 @@ function TeamPicker({ label, selected, onSelect, disabled, teams }: {
       <label className="block text-sm font-black text-blue-400 uppercase tracking-widest">
         {label} {selected && teams.find(t => t.id === selected) && <span className="text-white ml-2">({teams.find(t => t.id === selected)!.short_name})</span>}
       </label>
-      <div className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-8 gap-2 max-h-[250px] overflow-y-auto p-3 bg-[#0f1219] rounded-xl border border-[#2c3345]">
+      <div className="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-5 gap-3 max-h-[400px] overflow-y-auto p-4 bg-[#0f1219] rounded-xl border border-[#2c3345]">
         {/* Clear option */}
         {selected && (
           <button
             type="button"
             onClick={() => onSelect("")}
-            className="flex flex-col items-center justify-center p-2 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
+            className="flex flex-col items-center justify-center p-2 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all aspect-square"
             title="Quitar equipo"
           >
-            <span className="text-lg">✕</span>
-            <span className="text-[9px] font-black mt-1">Quitar</span>
+            <span className="text-2xl font-bold">✕</span>
+            <span className="text-[10px] font-black mt-1 uppercase">Quitar</span>
           </button>
         )}
         {teams.filter(t => !t.eliminated).map(t => (
@@ -965,18 +965,18 @@ function TeamPicker({ label, selected, onSelect, disabled, teams }: {
             key={t.id}
             type="button"
             onClick={() => onSelect(t.id)}
-            className={`flex flex-col items-center p-2 rounded-lg border transition-all ${
+            className={`flex flex-col items-center justify-center p-2 rounded-lg border transition-all aspect-square ${
               selected === t.id ? "bg-blue-600/30 border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]" : disabled === t.id ? "opacity-30 cursor-not-allowed border-transparent" : "bg-[#1e2330] border-transparent hover:border-[#2c3345]"
             }`}
             disabled={disabled === t.id}
             title={t.name}
           >
             {t.logo_url ? (
-              <img src={t.logo_url} alt="" className="w-10 h-10 object-contain" />
+              <img src={t.logo_url} alt="" className="w-14 h-14 object-contain" />
             ) : (
-              <div className="w-10 h-10 flex items-center justify-center text-[10px] font-bold">{t.short_name}</div>
+              <div className="w-14 h-14 flex items-center justify-center text-xs font-bold">{t.short_name}</div>
             )}
-            <span className="text-[9px] font-black mt-1 truncate w-full text-center uppercase">{t.short_name}</span>
+            <span className="text-[11px] font-black mt-2 truncate w-full text-center uppercase tracking-wider">{t.short_name}</span>
           </button>
         ))}
       </div>
