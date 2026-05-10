@@ -143,12 +143,12 @@ export function HistoryList({ predictions }: HistoryListProps) {
                   {/* Team A */}
                   <div className={`flex items-center gap-1.5 w-[28%] justify-end ${teamA_won ? "" : isCompleted ? "opacity-40" : ""}`}>
                     <span className={`font-heading font-black text-xs tracking-widest uppercase ${pickedA ? (isCorrect ? "text-success" : isWrong ? "text-r6-red" : "text-accent") : ""}`}>
-                      {match.team_a.short_name}
+                      {match.team_a?.short_name || "TBD"}
                     </span>
-                    {match.team_a.logo_url ? (
+                    {match.team_a?.logo_url ? (
                       <Image src={match.team_a.logo_url} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain shrink-0" />
                     ) : (
-                      <div className="w-[18px] h-[18px] bg-bg-alt flex items-center justify-center text-[7px] font-black shrink-0">{match.team_a.short_name[0]}</div>
+                      <div className="w-[18px] h-[18px] bg-bg-alt flex items-center justify-center text-[7px] font-black shrink-0">{match.team_a?.short_name?.[0] || "?"}</div>
                     )}
                   </div>
 
@@ -171,13 +171,13 @@ export function HistoryList({ predictions }: HistoryListProps) {
 
                   {/* Team B */}
                   <div className={`flex items-center gap-1.5 w-[28%] ${teamB_won ? "" : isCompleted ? "opacity-40" : ""}`}>
-                    {match.team_b.logo_url ? (
+                    {match.team_b?.logo_url ? (
                       <Image src={match.team_b.logo_url} alt="" width={18} height={18} className="w-[18px] h-[18px] object-contain shrink-0" />
                     ) : (
-                      <div className="w-[18px] h-[18px] bg-bg-alt flex items-center justify-center text-[7px] font-black shrink-0">{match.team_b.short_name[0]}</div>
+                      <div className="w-[18px] h-[18px] bg-bg-alt flex items-center justify-center text-[7px] font-black shrink-0">{match.team_b?.short_name?.[0] || "?"}</div>
                     )}
                     <span className={`font-heading font-black text-xs tracking-widest uppercase ${pickedB ? (isCorrect ? "text-success" : isWrong ? "text-r6-red" : "text-accent") : ""}`}>
-                      {match.team_b.short_name}
+                      {match.team_b?.short_name || "TBD"}
                     </span>
                   </div>
 

@@ -268,6 +268,9 @@ function MatchRow({ match }: { match: MatchWithTeams }) {
   const teamAWon = isCompleted && match.winner_id === match.team_a_id;
   const teamBWon = isCompleted && match.winner_id === match.team_b_id;
 
+  const teamA = match.team_a;
+  const teamB = match.team_b;
+
   return (
     <div className="flex items-center gap-3 px-4 py-3 hover:bg-card-hover transition-colors">
       {/* Time */}
@@ -287,13 +290,13 @@ function MatchRow({ match }: { match: MatchWithTeams }) {
       {/* Team A */}
       <div className={`flex items-center gap-2 flex-1 justify-end ${isCompleted && !teamAWon ? "opacity-40" : ""}`}>
         <span className={`font-heading font-black text-xs tracking-widest uppercase truncate ${teamAWon ? "text-success" : ""}`}>
-          {match.team_a.short_name}
+          {teamA?.short_name || "TBD"}
         </span>
-        {match.team_a.logo_url ? (
-          <Image src={match.team_a.logo_url} alt="" width={22} height={22} className="w-[22px] h-[22px] object-contain shrink-0" />
+        {teamA?.logo_url ? (
+          <Image src={teamA.logo_url} alt="" width={22} height={22} className="w-[22px] h-[22px] object-contain shrink-0" />
         ) : (
           <div className="w-[22px] h-[22px] bg-bg-alt rounded flex items-center justify-center text-[8px] font-black shrink-0">
-            {match.team_a.short_name[0]}
+            {teamA?.short_name?.[0] || "?"}
           </div>
         )}
       </div>
@@ -317,15 +320,15 @@ function MatchRow({ match }: { match: MatchWithTeams }) {
 
       {/* Team B */}
       <div className={`flex items-center gap-2 flex-1 ${isCompleted && !teamBWon ? "opacity-40" : ""}`}>
-        {match.team_b.logo_url ? (
-          <Image src={match.team_b.logo_url} alt="" width={22} height={22} className="w-[22px] h-[22px] object-contain shrink-0" />
+        {teamB?.logo_url ? (
+          <Image src={teamB.logo_url} alt="" width={22} height={22} className="w-[22px] h-[22px] object-contain shrink-0" />
         ) : (
           <div className="w-[22px] h-[22px] bg-bg-alt rounded flex items-center justify-center text-[8px] font-black shrink-0">
-            {match.team_b.short_name[0]}
+            {teamB?.short_name?.[0] || "?"}
           </div>
         )}
         <span className={`font-heading font-black text-xs tracking-widest uppercase truncate ${teamBWon ? "text-success" : ""}`}>
-          {match.team_b.short_name}
+          {teamB?.short_name || "TBD"}
         </span>
       </div>
 
